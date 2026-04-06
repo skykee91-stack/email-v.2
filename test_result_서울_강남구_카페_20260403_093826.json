@@ -1,0 +1,125 @@
+{
+  "region": "서울 강남구",
+  "category": "카페",
+  "total": 10,
+  "rates": {
+    "name": "100.0%",
+    "phone": "90.0%",
+    "email": "0.0%",
+    "address": "100.0%",
+    "naver_id": "30.0%",
+    "place_id": "100.0%"
+  },
+  "results": [
+    {
+      "name": "카페 그라시아스 아라비다 수서역점",
+      "phone": "0507-1426-4780",
+      "email": null,
+      "address": "서울 강남구 광평로 280 지하2층, 131~132호",
+      "personal_phone": null,
+      "blog_url": null,
+      "homepage_url": "https://graciasalavida.co.kr/",
+      "naver_id": "bizes",
+      "place_id": "1843917796"
+    },
+    {
+      "name": "크렘드르네 강남본점",
+      "phone": "0507-1399-1620",
+      "email": null,
+      "address": "서울 강남구 언주로63길 16 삼일빌딩 2층 크렘드르네",
+      "personal_phone": null,
+      "blog_url": null,
+      "homepage_url": "https://www.shop-cremederenee.com/?utm_source=%08%08%08Naver&utm_medium=Place",
+      "naver_id": null,
+      "place_id": "1740023953"
+    },
+    {
+      "name": "행운간",
+      "phone": "0507-1485-7939",
+      "email": null,
+      "address": "서울 강남구 양재천로 189 1층",
+      "personal_phone": null,
+      "blog_url": null,
+      "homepage_url": null,
+      "naver_id": null,
+      "place_id": "1452822415"
+    },
+    {
+      "name": "쿠라리에",
+      "phone": "02-6204-3930",
+      "email": null,
+      "address": "서울 강남구 언주로 842 1층",
+      "personal_phone": null,
+      "blog_url": null,
+      "homepage_url": null,
+      "naver_id": null,
+      "place_id": "2012376725"
+    },
+    {
+      "name": "뉴욕러브베이글 강남본점",
+      "phone": "02-557-8803",
+      "email": null,
+      "address": "서울 강남구 봉은사로2길 31 W빌딩 1층",
+      "personal_phone": null,
+      "blog_url": null,
+      "homepage_url": "https://www.nylovebagel.com/",
+      "naver_id": null,
+      "place_id": "1507083204"
+    },
+    {
+      "name": "부케 드 뺑",
+      "phone": null,
+      "email": null,
+      "address": "서울 강남구 도산대로49길 18 1층",
+      "personal_phone": null,
+      "blog_url": null,
+      "homepage_url": null,
+      "naver_id": null,
+      "place_id": "2092813866"
+    },
+    {
+      "name": "twnty 압구정점",
+      "phone": "0507-1376-0795",
+      "email": null,
+      "address": "서울 강남구 선릉로155길 29 1층 twnty",
+      "personal_phone": null,
+      "blog_url": null,
+      "homepage_url": "https://www.twnty.co.kr/",
+      "naver_id": "twnty",
+      "place_id": "1885113125"
+    },
+    {
+      "name": "브레드앤워크",
+      "phone": "0507-1346-8173",
+      "email": null,
+      "address": "서울 강남구 양재천로 183 지하1층, 지상1층, 2층",
+      "personal_phone": null,
+      "blog_url": null,
+      "homepage_url": null,
+      "naver_id": "breadandwalk",
+      "place_id": "1414148461"
+    },
+    {
+      "name": "VIEW376",
+      "phone": "0507-1387-7941",
+      "email": null,
+      "address": "서울 강남구 압구정동 376-1",
+      "personal_phone": null,
+      "blog_url": null,
+      "homepage_url": null,
+      "naver_id": null,
+      "place_id": "1440720607"
+    },
+    {
+      "name": "마일드하이클럽 압구정점",
+      "phone": "0507-1307-1707",
+      "email": null,
+      "address": "서울 강남구 언주로170길 22 1층",
+      "personal_phone": null,
+      "blog_url": null,
+      "homepage_url": "https://app.catchtable.co.kr/ct/shop/mildhighclubhttps://",
+      "naver_id": null,
+      "place_id": "1130419307"
+    }
+  ]
+}

@@ -1,0 +1,125 @@
+{
+  "region": "서울 마포구",
+  "category": "음식점",
+  "total": 10,
+  "rates": {
+    "name": "100.0%",
+    "phone": "90.0%",
+    "email": "10.0%",
+    "address": "100.0%",
+    "naver_id": "10.0%",
+    "place_id": "100.0%"
+  },
+  "results": [
+    {
+      "name": "도깨비집 홍대",
+      "phone": "0507-1471-7948",
+      "email": null,
+      "address": "서울 마포구 와우산로 71 1층, 2층",
+      "personal_phone": null,
+      "blog_url": null,
+      "homepage_url": null,
+      "naver_id": null,
+      "place_id": "2069910314"
+    },
+    {
+      "name": "연남동벚꽃집",
+      "phone": "0507-1359-3121",
+      "email": null,
+      "address": "서울 마포구 동교로29길 50",
+      "personal_phone": null,
+      "blog_url": null,
+      "homepage_url": null,
+      "naver_id": null,
+      "place_id": "1929468102"
+    },
+    {
+      "name": "합정공감",
+      "phone": "02-333-4733",
+      "email": null,
+      "address": "서울 마포구 양화로6길 49 2F",
+      "personal_phone": null,
+      "blog_url": null,
+      "homepage_url": "https://litt.ly/gonggam_hapjeong?utm_source=naver&utm_medium=place&utm_campaign=네이버플레이스",
+      "naver_id": null,
+      "place_id": "1266638776"
+    },
+    {
+      "name": "화산숯불구이",
+      "phone": "0507-1391-4853",
+      "email": null,
+      "address": "서울 마포구 독막로3길 17 1층",
+      "personal_phone": null,
+      "blog_url": null,
+      "homepage_url": null,
+      "naver_id": null,
+      "place_id": "2074718036"
+    },
+    {
+      "name": "솔솥 연남점",
+      "phone": "0507-1340-5846",
+      "email": null,
+      "address": "서울 마포구 동교로38길 35 지1층 2호, 3호",
+      "personal_phone": null,
+      "blog_url": null,
+      "homepage_url": null,
+      "naver_id": null,
+      "place_id": "1698847103"
+    },
+    {
+      "name": "다수제과",
+      "phone": null,
+      "email": "pchun@sbs-int.com",
+      "address": "서울 마포구 월드컵북로6길 46 1층",
+      "personal_phone": null,
+      "blog_url": null,
+      "homepage_url": null,
+      "naver_id": null,
+      "place_id": "2052682945"
+    },
+    {
+      "name": "청도미나리식당 합정점",
+      "phone": "0507-1342-8144",
+      "email": null,
+      "address": "서울 마포구 성지길 42 1층",
+      "personal_phone": null,
+      "blog_url": null,
+      "homepage_url": null,
+      "naver_id": "place",
+      "place_id": "1471246589"
+    },
+    {
+      "name": "더기와 합정점",
+      "phone": "0507-1416-1913",
+      "email": null,
+      "address": "서울 마포구 독막로3길 25 1층",
+      "personal_phone": null,
+      "blog_url": null,
+      "homepage_url": "https://litt.ly/thegiwa_hapjeong?utm_source=naver&utm_medium=place&utm_campaign=네이버플레이스",
+      "naver_id": null,
+      "place_id": "1113429489"
+    },
+    {
+      "name": "훠궈먹고 홍대점",
+      "phone": "0507-1387-6693",
+      "email": null,
+      "address": "서울 마포구 양화로18길 9 2층",
+      "personal_phone": null,
+      "blog_url": null,
+      "homepage_url": null,
+      "naver_id": null,
+      "place_id": "2031832347"
+    },
+    {
+      "name": "대목",
+      "phone": "0507-1470-0218",
+      "email": null,
+      "address": "서울 마포구 양화로6길 51 1층, 2층",
+      "personal_phone": null,
+      "blog_url": null,
+      "homepage_url": "https://litt.ly/daemok?utm_source=naver&utm_medium=place&utm_campaign=기본세팅",
+      "naver_id": null,
+      "place_id": "2034963357"
+    }
+  ]
+}

@@ -1,0 +1,163 @@
+{
+  "region": "서울 강남구",
+  "category": "치과",
+  "total": 15,
+  "rates": {
+    "name": "100.0%",
+    "phone": "93.3%",
+    "email": "53.3%",
+    "address": "100.0%"
+  },
+  "results": [
+    {
+      "name": "이미지 수12",
+      "phone": "0507-1478-2834",
+      "email": "john.smith@gmail.com",
+      "address": "서울 강남구 논현로111길 3 휴먼스페이스빌 1층",
+      "personal_phone": null,
+      "blog_url": null,
+      "homepage_url": "https://dtqdental.com/",
+      "naver_id": null
+    },
+    {
+      "name": "이미지 수16",
+      "phone": "070-7174-2882",
+      "email": "yt.thinkfan@gmail.com",
+      "address": "서울 강남구 도산대로 123 4층",
+      "personal_phone": null,
+      "blog_url": null,
+      "homepage_url": null,
+      "naver_id": null
+    },
+    {
+      "name": "이미지 수24",
+      "phone": "070-7174-2848",
+      "email": "eiluss@naver..com",
+      "address": "서울 강남구 언주로 728",
+      "personal_phone": null,
+      "blog_url": "https://blog.naver.com/minish_smile",
+      "homepage_url": null,
+      "naver_id": "minish_smile"
+    },
+    {
+      "name": "이미지 수45",
+      "phone": "02-6956-8522",
+      "email": "ajlahodzic13@gmail.com",
+      "address": "서울 강남구 강남대로 428 7층",
+      "personal_phone": null,
+      "blog_url": "https://blog.naver.com/saerodental8522",
+      "homepage_url": "http://saerodental.com",
+      "naver_id": "saerodental8522"
+    },
+    {
+      "name": "이미지 수21",
+      "phone": "02-517-0002",
+      "email": null,
+      "address": "서울 강남구 학동로 207 3층",
+      "personal_phone": "010-7697-2829",
+      "blog_url": "https://blog.naver.com/seohyun_0425",
+      "homepage_url": "http://www.ceramicdental.co.kr/",
+      "naver_id": "seohyun_0425"
+    },
+    {
+      "name": "이미지 수38",
+      "phone": "0507-1449-2087",
+      "email": null,
+      "address": "서울 강남구 강남대로 624 ICT타워 13층 스마일디치과",
+      "personal_phone": null,
+      "blog_url": "https://blog.naver.com/kim707401",
+      "homepage_url": "http://smiled.co.kr",
+      "naver_id": "kim707401"
+    },
+    {
+      "name": "이미지 수73",
+      "phone": "0507-1441-8783",
+      "email": "ajlahodzic13@gmail.com",
+      "address": "서울 강남구 선릉로 817 캠포츠빌딩 3층",
+      "personal_phone": null,
+      "blog_url": "https://blog.naver.com/dfirst2024",
+      "homepage_url": null,
+      "naver_id": "dfirst2024"
+    },
+    {
+      "name": "이미지 수17",
+      "phone": null,
+      "email": "planmkt2875@gmail.com",
+      "address": "서울 강남구 도산대로 119 15층",
+      "personal_phone": null,
+      "blog_url": "https://blog.naver.com/plandent01",
+      "homepage_url": "https://implan.co.kr/",
+      "naver_id": "plandent01"
+    },
+    {
+      "name": "이미지 수18",
+      "phone": "02-6383-2828",
+      "email": null,
+      "address": "서울 강남구 도산대로 138 B2층",
+      "personal_phone": null,
+      "blog_url": "https://blog.naver.com/dentist_baek",
+      "homepage_url": "https://www.revedental.com",
+      "naver_id": "dentist_baek"
+    },
+    {
+      "name": "이미지 수13",
+      "phone": "070-7174-2875",
+      "email": null,
+      "address": "서울 강남구 선릉로93길 22 2층",
+      "personal_phone": null,
+      "blog_url": "https://blog.naver.com/saveteeth1",
+      "homepage_url": "https://seolleung.save-teeth.co.kr/",
+      "naver_id": "saveteeth1"
+    },
+    {
+      "name": "이미지 수25",
+      "phone": "0507-1485-2829",
+      "email": null,
+      "address": "서울 강남구 삼성로 651 래미안라클래시 4층",
+      "personal_phone": null,
+      "blog_url": "https://blog.naver.com/melovenus",
+      "homepage_url": null,
+      "naver_id": "melovenus"
+    },
+    {
+      "name": "이미지 수6",
+      "phone": "02-567-2228",
+      "email": "seoulteheran@daum.net",
+      "address": "서울 강남구 테헤란로 403 리치타워 3층 302호",
+      "personal_phone": null,
+      "blog_url": "https://blog.naver.com/seoulteheran",
+      "homepage_url": "http://www.seoulteheran.com",
+      "naver_id": "seoulteheran"
+    },
+    {
+      "name": "이미지 수7",
+      "phone": "0507-1496-2929",
+      "email": null,
+      "address": "서울 강남구 언주로 514 힐헤븐빌딩 6층",
+      "personal_phone": null,
+      "blog_url": "https://blog.naver.com/dentiport",
+      "homepage_url": null,
+      "naver_id": "dentiport"
+    },
+    {
+      "name": "이미지 수11",
+      "phone": "02-512-2295",
+      "email": null,
+      "address": "서울 강남구 강남대로 470 808타워 8층",
+      "personal_phone": null,
+      "blog_url": "https://blog.naver.com/dental2d",
+      "homepage_url": "https://2d2d.co.kr/landing1/",
+      "naver_id": "dental2d"
+    },
+    {
+      "name": "이미지 수5",
+      "phone": "02-512-0204",
+      "email": "53588150@hanmail.net",
+      "address": "서울 강남구 압구정로 324 3층",
+      "personal_phone": null,
+      "blog_url": "https://blog.naver.com/gdtree0204",
+      "homepage_url": "http://www.강남숙면치과.com",
+      "naver_id": "gdtree0204"
+    }
+  ]
+}

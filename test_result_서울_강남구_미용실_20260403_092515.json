@@ -1,0 +1,125 @@
+{
+  "region": "서울 강남구",
+  "category": "미용실",
+  "total": 10,
+  "rates": {
+    "name": "100.0%",
+    "phone": "100.0%",
+    "email": "70.0%",
+    "address": "100.0%",
+    "naver_id": "70.0%",
+    "place_id": "100.0%"
+  },
+  "results": [
+    {
+      "name": "더차 강남점",
+      "phone": "0507-1478-0091",
+      "email": null,
+      "address": "서울 강남구 강남대로110길 19-1 3층",
+      "personal_phone": null,
+      "blog_url": null,
+      "homepage_url": null,
+      "naver_id": null,
+      "place_id": "1242726662"
+    },
+    {
+      "name": "KEEN헤어 강남본점",
+      "phone": "0507-1333-3558",
+      "email": null,
+      "address": "서울 강남구 봉은사로4길 36 3층 301호 KEEN헤어",
+      "personal_phone": null,
+      "blog_url": null,
+      "homepage_url": null,
+      "naver_id": null,
+      "place_id": "11721684"
+    },
+    {
+      "name": "무이 대치본점",
+      "phone": "0507-1392-0487",
+      "email": "hahahatk512@naver.com",
+      "address": "서울 강남구 삼성로 314 보양빌딩 1층 무이 대치본점",
+      "personal_phone": "010-3492-6532",
+      "blog_url": "https://blog.naver.com/hahahatk512",
+      "homepage_url": "https://muihair.co.kr/",
+      "naver_id": "hahahatk512",
+      "place_id": "1992540315"
+    },
+    {
+      "name": "비오른헤어 청담점",
+      "phone": "0507-1404-5684",
+      "email": "b_ornhair@naver.com",
+      "address": "서울 강남구 선릉로 710 2층 비오른헤어",
+      "personal_phone": null,
+      "blog_url": "https://blog.naver.com/b_ornhair",
+      "homepage_url": null,
+      "naver_id": "b_ornhair",
+      "place_id": "1123300416"
+    },
+    {
+      "name": "에코쟈뎅 대치테라스점",
+      "phone": "0507-1369-5326",
+      "email": "eco-daechi@naver.com",
+      "address": "서울 강남구 남부순환로 2936 윈플러스상가 B107호",
+      "personal_phone": null,
+      "blog_url": "https://blog.naver.com/eco-daechi",
+      "homepage_url": null,
+      "naver_id": "eco-daechi",
+      "place_id": "1699403704"
+    },
+    {
+      "name": "르블라썸 강남점",
+      "phone": "0507-1445-0905",
+      "email": "leble4@naver.com",
+      "address": "서울 강남구 논현로85길 43 참진빌딩 4층 르블라썸 강남점",
+      "personal_phone": null,
+      "blog_url": "https://blog.naver.com/leble4",
+      "homepage_url": null,
+      "naver_id": "leble4",
+      "place_id": "1478005196"
+    },
+    {
+      "name": "에이바이봄",
+      "phone": "02-516-8765",
+      "email": null,
+      "address": "서울 강남구 선릉로152길 40 3층",
+      "personal_phone": null,
+      "blog_url": null,
+      "homepage_url": "http://abybom.com/",
+      "naver_id": null,
+      "place_id": "93777020"
+    },
+    {
+      "name": "무이 한티점",
+      "phone": "0507-1492-0486",
+      "email": "muihanti@naver.com",
+      "address": "서울 강남구 선릉로64길 18 그린빌딩 1층 무이 한티점",
+      "personal_phone": null,
+      "blog_url": "https://blog.naver.com/muihanti",
+      "homepage_url": "https://www.muihair.co.kr/",
+      "naver_id": "muihanti",
+      "place_id": "1500974767"
+    },
+    {
+      "name": "아르결 강남점",
+      "phone": "0507-1465-3061",
+      "email": "jsungho1024@naver.com",
+      "address": "서울 강남구 강남대로92길 13 2층",
+      "personal_phone": null,
+      "blog_url": "https://blog.naver.com/jsungho1024",
+      "homepage_url": null,
+      "naver_id": "jsungho1024",
+      "place_id": "1444886387"
+    },
+    {
+      "name": "준오헤어 강남역스퀘어점",
+      "phone": "0507-1417-0608",
+      "email": "junognsq1203@naver.com",
+      "address": "서울 강남구 테헤란로 101 이즈타워 3층",
+      "personal_phone": "010-7589-9961",
+      "blog_url": "https://blog.naver.com/junognsq1203",
+      "homepage_url": null,
+      "naver_id": "junognsq1203",
+      "place_id": "1700494654"
+    }
+  ]
+}

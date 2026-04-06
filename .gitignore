@@ -1,0 +1,13 @@
+dist/
+build_debug/
+dist_debug/
+__pycache__/
+*.pyc
+.env
+web_scrape_result.json
+_web_scrape_*.py
+_web_scrape_*.json
+_debug_*.txt
+_test_*.json
+_envtest.txt
+_scrape_error.log

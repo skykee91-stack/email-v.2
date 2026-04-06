@@ -1,0 +1,125 @@
+{
+  "region": "서울 강남구",
+  "category": "치과",
+  "total": 10,
+  "rates": {
+    "name": "100.0%",
+    "phone": "90.0%",
+    "email": "80.0%",
+    "address": "100.0%",
+    "naver_id": "100.0%",
+    "place_id": "100.0%"
+  },
+  "results": [
+    {
+      "name": "서울미소치과의원",
+      "phone": "02-595-2275",
+      "email": "park0817@nts.go.kr",
+      "address": "서울 강남구 도산대로 120 청호빌딩 15층",
+      "personal_phone": null,
+      "blog_url": "https://blog.naver.com/dohnany",
+      "homepage_url": null,
+      "naver_id": "dohnany",
+      "place_id": "11859614"
+    },
+    {
+      "name": "스마일스튜디오치과의원",
+      "phone": "0507-1325-2318",
+      "email": "smilestudioseoul@gmail.com",
+      "address": "서울 강남구 학동로3길 2 6층 ,B1층 / 접수- B1층",
+      "personal_phone": null,
+      "blog_url": null,
+      "homepage_url": "https://www.smilestudioseoul.com/",
+      "naver_id": "13",
+      "place_id": "1506134278"
+    },
+    {
+      "name": "신사이살리는치과의원",
+      "phone": "070-7174-2882",
+      "email": null,
+      "address": "서울 강남구 도산대로 123 4층",
+      "personal_phone": null,
+      "blog_url": null,
+      "homepage_url": "https://sinsa.save-teeth.com/",
+      "naver_id": "13",
+      "place_id": "2077557128"
+    },
+    {
+      "name": "덴티크치과의원 강남",
+      "phone": "0507-1478-2834",
+      "email": null,
+      "address": "서울 강남구 논현로111길 3 휴먼스페이스빌 1층",
+      "personal_phone": null,
+      "blog_url": null,
+      "homepage_url": "https://dtqdental.com/",
+      "naver_id": "13",
+      "place_id": "1234004726"
+    },
+    {
+      "name": "미니쉬치과병원",
+      "phone": "070-7174-2848",
+      "email": "sns@cesco.co.kr",
+      "address": "서울 강남구 언주로 728",
+      "personal_phone": null,
+      "blog_url": "https://blog.naver.com/minish_smile",
+      "homepage_url": "https://cesco.co.kr/Cesco/Cesco/device_service.aspx",
+      "naver_id": "minish_smile",
+      "place_id": "21369005"
+    },
+    {
+      "name": "강남새로치과의원",
+      "phone": "02-6956-8522",
+      "email": "kna@neuro.or.kr",
+      "address": "서울 강남구 강남대로 428 7층",
+      "personal_phone": null,
+      "blog_url": "https://blog.naver.com/saerodental8522",
+      "homepage_url": "http://saerodental.com/",
+      "naver_id": "saerodental8522",
+      "place_id": "1350995313"
+    },
+    {
+      "name": "세라믹치과의원 강남",
+      "phone": "02-517-0002",
+      "email": "seohyun_0425@naver.com",
+      "address": "서울 강남구 학동로 207 3층",
+      "personal_phone": "010-7697-2829",
+      "blog_url": "https://blog.naver.com/seohyun_0425",
+      "homepage_url": "http://www.ceramicdental.co.kr/",
+      "naver_id": "seohyun_0425",
+      "place_id": "36798082"
+    },
+    {
+      "name": "스마일디치과의원",
+      "phone": "0507-1449-2087",
+      "email": "kim707401@naver.com",
+      "address": "서울 강남구 강남대로 624 ICT타워 13층 스마일디치과",
+      "personal_phone": null,
+      "blog_url": "https://blog.naver.com/kim707401",
+      "homepage_url": "http://smiled.co.kr/",
+      "naver_id": "kim707401",
+      "place_id": "11889874"
+    },
+    {
+      "name": "디퍼스트치과의원 압구정 본원",
+      "phone": "0507-1441-8783",
+      "email": "dfirst2024@naver.com",
+      "address": "서울 강남구 선릉로 817 캠포츠빌딩 3층",
+      "personal_phone": null,
+      "blog_url": "https://blog.naver.com/dfirst2024",
+      "homepage_url": "https://youtube.com/@d1st_24",
+      "naver_id": "dfirst2024",
+      "place_id": "1748226425"
+    },
+    {
+      "name": "플란치과의원 강남점",
+      "phone": null,
+      "email": "planmkt2875@gmail.com",
+      "address": "서울 강남구 도산대로 119 15층",
+      "personal_phone": null,
+      "blog_url": "https://blog.naver.com/plandent01",
+      "homepage_url": "https://implan.co.kr/",
+      "naver_id": "plandent01",
+      "place_id": "1430402581"
+    }
+  ]
+}

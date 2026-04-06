@@ -1,0 +1,53 @@
+[place] 서울 강남 치과: 26건 T:24 A:26 ID:23 010:1 E:5 (835s)
+[place] 부산 해운대 헬스장: 56건 T:52 A:56 ID:45 010:16 E:0 (1453s)
+21:15:54 socket.send() raised exception.
+21:15:56 socket.send() raised exception.
+21:15:56 socket.send() raised exception.
+[place] 대구 세탁소: ERROR Page.goto: Connection closed while reading from the driver
+21:15:56 socket.send() raised exception.
+[place] 인천 부평 꽃집: ERROR Page.goto: Connection closed while reading from the driver
+21:15:56 socket.send() raised exception.
+[place] 경기 수원 인테리어: ERROR Page.goto: Connection closed while reading from the driver
+21:15:56 socket.send() raised exception.
+[blog]  서울 마포 청소업체: ERROR Page.goto: Connection closed while reading from the driver
+21:15:56 socket.send() raised exception.
+[blog]  부산 이사업체: ERROR Page.goto: Connection closed while reading from the driver
+21:15:56 socket.send() raised exception.
+[blog]  대전 에어컨설치: ERROR Page.goto: Connection closed while reading from the driver
+21:15:56 socket.send() raised exception.
+[blog]  경기 성남 피부관리: ERROR Page.goto: Connection closed while reading from the driver
+21:15:56 socket.send() raised exception.
+[blog]  인천 자동차정비: ERROR Page.goto: Connection closed while reading from the driver
+21:15:56 socket.send() raised exception.
+Traceback (most recent call last):
+  File "C:\Users\a\naver_place_scraper\run_test_10.py", line 105, in <module>
+    asyncio.run(main())
+  File "C:\Users\a\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py", line 195, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "C:\Users\a\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\a\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py", line 691, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "C:\Users\a\naver_place_scraper\run_test_10.py", line 60, in main
+    async with create_browser(headed=False) as (browser, context, page):
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\a\AppData\Local\Programs\Python\Python312\Lib\contextlib.py", line 217, in __aexit__
+    await anext(self.gen)
+  File "C:\Users\a\naver_place_scraper\scraper\browser.py", line 40, in create_browser
+    await context.close()
+  File "C:\Users\a\AppData\Local\Programs\Python\Python312\Lib\site-packages\playwright\async_api\_generated.py", line 13539, in close
+    return mapping.from_maybe_impl(await self._impl_obj.close(reason=reason))
+                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\a\AppData\Local\Programs\Python\Python312\Lib\site-packages\playwright\_impl\_browser_context.py", line 590, in close
+    await self.request.dispose(reason=reason)
+  File "C:\Users\a\AppData\Local\Programs\Python\Python312\Lib\site-packages\playwright\_impl\_fetch.py", line 114, in dispose
+    await self._channel.send("dispose", None, {"reason": reason})
+  File "C:\Users\a\AppData\Local\Programs\Python\Python312\Lib\site-packages\playwright\_impl\_connection.py", line 69, in send
+    return await self._connection.wrap_api_call(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\a\AppData\Local\Programs\Python\Python312\Lib\site-packages\playwright\_impl\_connection.py", line 559, in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+Exception: BrowserContext.close: Connection closed while reading from the driver

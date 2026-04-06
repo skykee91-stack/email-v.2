@@ -1,0 +1,163 @@
+{
+  "region": "서울 강남구",
+  "category": "학원",
+  "total": 15,
+  "rates": {
+    "name": "100.0%",
+    "phone": "93.3%",
+    "email": "20.0%",
+    "address": "100.0%"
+  },
+  "results": [
+    {
+      "name": "컬컴 강남점",
+      "phone": "0507-1427-0584",
+      "email": null,
+      "address": "서울 강남구 논현로93길 4 4층 402호",
+      "personal_phone": null,
+      "blog_url": "https://blog.naver.com/culcomjongro",
+      "homepage_url": null,
+      "naver_id": "culcomjongro"
+    },
+    {
+      "name": "EDB어학원 강남점",
+      "phone": "0507-1413-1452",
+      "email": "choihanryo@gmail.com",
+      "address": "서울 강남구 강남대로92길 13 7층, 8층",
+      "personal_phone": null,
+      "blog_url": "https://blog.naver.com/englishdrben",
+      "homepage_url": "https://www.edbschool.co.kr",
+      "naver_id": "englishdrben"
+    },
+    {
+      "name": "박코치어학원 강남캠퍼스",
+      "phone": "02-1577-7432",
+      "email": null,
+      "address": "서울 강남구 테헤란로5길 11 2층, 3층",
+      "personal_phone": null,
+      "blog_url": "https://blog.naver.com/the_parkcoach",
+      "homepage_url": "https://www.parkcoach.com/academy/?lnd=1",
+      "naver_id": "the_parkcoach"
+    },
+    {
+      "name": "안서리 베이킹랩",
+      "phone": "0507-1489-5955",
+      "email": null,
+      "address": "서울 강남구 삼성로 755 2층",
+      "personal_phone": "010-1234-1234",
+      "blog_url": "https://blog.naver.com/studiochoix",
+      "homepage_url": null,
+      "naver_id": "studiochoix"
+    },
+    {
+      "name": "YBM어학원 강남센터",
+      "phone": "02-565-0509",
+      "email": "ybmgroup@ybm.co.kr",
+      "address": "서울 강남구 강남대로 408 5층~9층",
+      "personal_phone": null,
+      "blog_url": null,
+      "homepage_url": "https://www.ybmedu.com/kangnam",
+      "naver_id": null
+    },
+    {
+      "name": "OTP영어학원",
+      "phone": "02-553-0504",
+      "email": "otpenglish1@gmail.com",
+      "address": "서울 강남구 테헤란로8길 26 3층",
+      "personal_phone": null,
+      "blog_url": "https://blog.naver.com/otpenglish",
+      "homepage_url": null,
+      "naver_id": "otpenglish"
+    },
+    {
+      "name": "탑티어학원 대치 본관",
+      "phone": "02-569-0788",
+      "email": null,
+      "address": "서울 강남구 남부순환로 2935 2층",
+      "personal_phone": null,
+      "blog_url": "https://blog.naver.com/toptier_math_edu",
+      "homepage_url": null,
+      "naver_id": "toptier_math_edu"
+    },
+    {
+      "name": "아트아뜰리에 성인취미미술 학원 강남점",
+      "phone": null,
+      "email": null,
+      "address": "서울 강남구 봉은사로4길 36 4층 402호",
+      "personal_phone": "010-2204-3176",
+      "blog_url": "https://blog.naver.com/artatelier3",
+      "homepage_url": "https://art-ate.com",
+      "naver_id": "artatelier3"
+    },
+    {
+      "name": "더킹고등수학전문학원",
+      "phone": "0507-1493-3927",
+      "email": null,
+      "address": "서울 강남구 역삼로 415 2층 일부",
+      "personal_phone": null,
+      "blog_url": "https://blog.naver.com/theking3927",
+      "homepage_url": null,
+      "naver_id": "theking3927"
+    },
+    {
+      "name": "클라디학원 대치본관",
+      "phone": "02-537-3222",
+      "email": null,
+      "address": "서울 강남구 삼성로 223 5층, 6층, 7층",
+      "personal_phone": null,
+      "blog_url": "https://blog.naver.com/kladi3222",
+      "homepage_url": null,
+      "naver_id": "kladi3222"
+    },
+    {
+      "name": "이루리학원",
+      "phone": "0507-1356-8520",
+      "email": null,
+      "address": "서울 강남구 도곡로 440 4층 이루리학원",
+      "personal_phone": null,
+      "blog_url": "https://blog.naver.com/iruriedu",
+      "homepage_url": null,
+      "naver_id": "iruriedu"
+    },
+    {
+      "name": "모노스학원",
+      "phone": "02-561-7488",
+      "email": null,
+      "address": "서울 강남구 삼성로 331",
+      "personal_phone": null,
+      "blog_url": "https://blog.naver.com/monosacademy",
+      "homepage_url": null,
+      "naver_id": "monosacademy"
+    },
+    {
+      "name": "퍼스널 잉글리쉬",
+      "phone": "02-2051-5050",
+      "email": null,
+      "address": "서울 강남구 테헤란로1길 10 세경빌딩 5층",
+      "personal_phone": null,
+      "blog_url": null,
+      "homepage_url": "https://www.personalenglish.co.kr/",
+      "naver_id": null
+    },
+    {
+      "name": "짱솔학원 대치본점",
+      "phone": "02-556-2501",
+      "email": null,
+      "address": "서울 강남구 남부순환로 2935 대치프라자 4층",
+      "personal_phone": null,
+      "blog_url": "https://blog.naver.com/zsolution",
+      "homepage_url": "http://www.zzangsol.co.kr/",
+      "naver_id": "zsolution"
+    },
+    {
+      "name": "더원학원 대치점",
+      "phone": "02-508-5336",
+      "email": null,
+      "address": "서울 강남구 삼성로71길 14 관은빌딩 2, 3, 4층",
+      "personal_phone": null,
+      "blog_url": "https://blog.naver.com/theonemath",
+      "homepage_url": "http://theoneacademy.co.kr/",
+      "naver_id": "theonemath"
+    }
+  ]
+}

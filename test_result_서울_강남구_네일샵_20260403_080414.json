@@ -1,0 +1,125 @@
+{
+  "region": "서울 강남구",
+  "category": "네일샵",
+  "total": 10,
+  "rates": {
+    "name": "100.0%",
+    "phone": "80.0%",
+    "email": "20.0%",
+    "address": "100.0%",
+    "naver_id": "60.0%",
+    "place_id": "100.0%"
+  },
+  "results": [
+    {
+      "name": "시그니초네일 강남신논현점",
+      "phone": "0507-1375-5449",
+      "email": null,
+      "address": "서울 강남구 강남대로118길 7 3층",
+      "personal_phone": null,
+      "blog_url": null,
+      "homepage_url": null,
+      "naver_id": "place",
+      "place_id": "2078364080"
+    },
+    {
+      "name": "네오네일 하이푸스 역삼점",
+      "phone": "02-554-0345",
+      "email": null,
+      "address": "서울 강남구 역삼로9길 12 1층",
+      "personal_phone": null,
+      "blog_url": null,
+      "homepage_url": "http://pf.kakao.com/_GtWpxj",
+      "naver_id": "place",
+      "place_id": "1181064140"
+    },
+    {
+      "name": "소이네일 역삼점",
+      "phone": "0507-1362-0096",
+      "email": null,
+      "address": "서울 강남구 논현로85길 52 상가 2층",
+      "personal_phone": null,
+      "blog_url": null,
+      "homepage_url": null,
+      "naver_id": null,
+      "place_id": "1800166414"
+    },
+    {
+      "name": "에러퍼펙트 강남점",
+      "phone": "0507-1324-2831",
+      "email": null,
+      "address": "서울 강남구 강남대로118길 22 3층",
+      "personal_phone": null,
+      "blog_url": "https://blog.naver.com/errorperfect",
+      "homepage_url": null,
+      "naver_id": "errorperfect",
+      "place_id": "1701420526"
+    },
+    {
+      "name": "공간네일 강남점",
+      "phone": "0507-1448-5577",
+      "email": null,
+      "address": "서울 강남구 봉은사로6길 29 1층 102호 공간네일",
+      "personal_phone": null,
+      "blog_url": null,
+      "homepage_url": "http://www.gonggannail.com/",
+      "naver_id": null,
+      "place_id": "1597346512"
+    },
+    {
+      "name": "반디인하우스 강남본점",
+      "phone": "0507-1363-2342",
+      "email": null,
+      "address": "서울 강남구 봉은사로 114 반디빌딩 1층",
+      "personal_phone": "010-7318-5682",
+      "blog_url": "https://blog.naver.com/bandi5682",
+      "homepage_url": null,
+      "naver_id": "bandi5682",
+      "place_id": "30811999"
+    },
+    {
+      "name": "도쿄네일",
+      "phone": "0507-1385-4141",
+      "email": "markkobayashi@peninsula.com",
+      "address": "서울 강남구 선릉로86길 31 롯데골드로즈2 406호",
+      "personal_phone": null,
+      "blog_url": "https://blog.naver.com/seymc2",
+      "homepage_url": null,
+      "naver_id": "seymc2",
+      "place_id": "13323284"
+    },
+    {
+      "name": "유후네일 신논현점",
+      "phone": null,
+      "email": null,
+      "address": "서울 강남구 봉은사로1길 37 3층",
+      "personal_phone": null,
+      "blog_url": null,
+      "homepage_url": null,
+      "naver_id": null,
+      "place_id": "1461507207"
+    },
+    {
+      "name": "어반네일 선릉점",
+      "phone": null,
+      "email": null,
+      "address": "서울 강남구 테헤란로55길 17 URBAN9 4층 일부호",
+      "personal_phone": null,
+      "blog_url": null,
+      "homepage_url": null,
+      "naver_id": null,
+      "place_id": "2027950791"
+    },
+    {
+      "name": "나노네일",
+      "phone": "0507-1399-0853",
+      "email": "apple2142@smba.go.kr",
+      "address": "서울 강남구 언주로98길 9 제이씨빌딩 3층",
+      "personal_phone": null,
+      "blog_url": null,
+      "homepage_url": null,
+      "naver_id": "place",
+      "place_id": "2053470010"
+    }
+  ]
+}

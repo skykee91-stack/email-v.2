@@ -1,0 +1,125 @@
+{
+  "region": "서울 강남구",
+  "category": "피부과",
+  "total": 10,
+  "rates": {
+    "name": "100.0%",
+    "phone": "100.0%",
+    "email": "30.0%",
+    "address": "100.0%",
+    "naver_id": "100.0%",
+    "place_id": "100.0%"
+  },
+  "results": [
+    {
+      "name": "이미지 수11",
+      "phone": "02-6958-8906",
+      "email": null,
+      "address": "서울 강남구 강남대로 390 10층",
+      "personal_phone": null,
+      "blog_url": "https://blog.naver.com/hwk0417",
+      "homepage_url": null,
+      "naver_id": "hwk0417",
+      "place_id": "2039143306"
+    },
+    {
+      "name": "이미지 수30",
+      "phone": "02-569-0222",
+      "email": null,
+      "address": "서울 강남구 강남대로 340 8층",
+      "personal_phone": null,
+      "blog_url": "https://blog.naver.com/ode_clinic",
+      "homepage_url": "http://www.odeclinic.co.kr/",
+      "naver_id": "ode_clinic",
+      "place_id": "1089375154"
+    },
+    {
+      "name": "이미지 수29",
+      "phone": "0507-1366-4849",
+      "email": null,
+      "address": "서울 강남구 도산대로 330 3층, 4층",
+      "personal_phone": "01074901377",
+      "blog_url": "https://blog.naver.com/peaureve_clinic",
+      "homepage_url": "http://www.peaureve.co.kr",
+      "naver_id": "peaureve_clinic",
+      "place_id": "1128111897"
+    },
+    {
+      "name": "이미지 수10",
+      "phone": "0507-1333-2231",
+      "email": null,
+      "address": "서울 강남구 강남대로 494",
+      "personal_phone": null,
+      "blog_url": "https://blog.naver.com/daybeau-gangnam",
+      "homepage_url": null,
+      "naver_id": "daybeau-gangnam",
+      "place_id": "1987745625"
+    },
+    {
+      "name": "이미지 수15",
+      "phone": "0507-1478-0561",
+      "email": "team@madeinreal.com",
+      "address": "서울 강남구 강남대로 428 8층",
+      "personal_phone": null,
+      "blog_url": "https://blog.naver.com/on-clinic",
+      "homepage_url": "https://on-clinic.co.kr/",
+      "naver_id": "on-clinic",
+      "place_id": "37361917"
+    },
+    {
+      "name": "이미지 수14",
+      "phone": "0507-1335-1312",
+      "email": null,
+      "address": "서울 강남구 테헤란로 107 메디타워 3층",
+      "personal_phone": null,
+      "blog_url": null,
+      "homepage_url": "http://vsline2.co.kr",
+      "naver_id": "13",
+      "place_id": "1768700234"
+    },
+    {
+      "name": "이미지 수9",
+      "phone": "02-6927-6022",
+      "email": "ajlahodzic13@gmail.com",
+      "address": "서울 강남구 강남대로 470 808타워 6층",
+      "personal_phone": null,
+      "blog_url": "https://blog.naver.com/npmeitei93898",
+      "homepage_url": "https://www.uni114.co.kr/",
+      "naver_id": "npmeitei93898",
+      "place_id": "1380019560"
+    },
+    {
+      "name": "이미지 수19",
+      "phone": "02-511-6004",
+      "email": null,
+      "address": "서울 강남구 논현로 820 제이씨빌딩 5층",
+      "personal_phone": null,
+      "blog_url": "https://blog.naver.com/pindderma",
+      "homepage_url": "https://www.pindderma.com",
+      "naver_id": "pindderma",
+      "place_id": "1105272168"
+    },
+    {
+      "name": "이미지 수39",
+      "phone": "0507-1391-6390",
+      "email": null,
+      "address": "서울 강남구 압구정로28길 48 참빌딩 2, 4층",
+      "personal_phone": null,
+      "blog_url": null,
+      "homepage_url": null,
+      "naver_id": "13",
+      "place_id": "1082512541"
+    },
+    {
+      "name": "이미지 수12",
+      "phone": "02-741-2255",
+      "email": "naolclinic.kr@gmail.com",
+      "address": "서울 강남구 도산대로 329 3층 청담나올의원",
+      "personal_phone": null,
+      "blog_url": "https://blog.naver.com/naolclinic",
+      "homepage_url": "https://www.naolclinic.com",
+      "naver_id": "naolclinic",
+      "place_id": "1818390930"
+    }
+  ]
+}
