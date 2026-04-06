@@ -25,7 +25,22 @@ CITY_TO_DISTRICTS = {
     '광주': ['광주 북구','광주 서구','광주 남구','광주 광산구','광주 동구'],
     '수원': ['수원 영통구','수원 권선구','수원 장안구','수원 팔달구'],
     '성남': ['성남 분당구','성남 수정구','성남 중원구'],
+    '울산': ['울산 남구','울산 중구','울산 북구','울산 동구','울산 울주군'],
+    '세종': ['세종시'],
+    '제주': ['제주 제주시','제주 서귀포시'],
+    '고양': ['고양 일산동구','고양 일산서구','고양 덕양구'],
+    '용인': ['용인 수지구','용인 기흥구','용인 처인구'],
+    '창원': ['창원 성산구','창원 의창구','창원 마산합포구','창원 마산회원구','창원 진해구'],
+    '천안': ['천안 서북구','천안 동남구'],
+    '청주': ['청주 흥덕구','청주 서원구','청주 청원구','청주 상당구'],
+    '전주': ['전주 덕진구','전주 완산구'],
+    '포항': ['포항 남구','포항 북구'],
 }
+
+# 전국 모드: 모든 도시를 합침
+ALL_REGIONS = []
+for city_districts in CITY_TO_DISTRICTS.values():
+    ALL_REGIONS.extend(city_districts)
 
 
 async def scrape(category: str, regions: list, target: int):
@@ -128,6 +143,8 @@ def main():
     # 지역 자동 분배
     if not region:
         regions = CITY_TO_DISTRICTS['서울']
+    elif region == '전국':
+        regions = ALL_REGIONS
     elif region in CITY_TO_DISTRICTS:
         regions = CITY_TO_DISTRICTS[region]
     else:
