@@ -3,6 +3,8 @@
 import asyncio
 import os
 import random
+import subprocess
+import socket
 from contextlib import asynccontextmanager
 from playwright.async_api import async_playwright, Browser, BrowserContext, Page
 
@@ -11,6 +13,12 @@ try:
     HAS_STEALTH = True
 except ImportError:
     HAS_STEALTH = False
+
+
+def find_free_port():
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.bind(('', 0))
+        return s.getsockname()[1]
 
 # User-Agent 랜덤 목록 (한국 브라우저처럼 보이게)
 USER_AGENTS = [
@@ -40,23 +48,39 @@ async def create_browser(headed: bool = False, use_proxy: bool = True):
     proxy_user = os.environ.get('PROXY_USER', '')
     proxy_pass = os.environ.get('PROXY_PASS', '')
 
-    if use_proxy and proxy_user and proxy_pass:
+    if use_proxy and proxy_host:
         proxy_config = {
             "server": f"http://{proxy_host}:{proxy_port}",
-            "username": f"{proxy_user}_country-kr_session-{random.randint(100000, 999999)}",
-            "password": proxy_pass,
         }
+        # Whitelist 방식이 아닌 경우 인증 추가
+        if proxy_user and proxy_pass:
+            proxy_config["username"] = proxy_user
+            proxy_config["password"] = f"{proxy_pass}_country-kr"
+
+    # 프록시 인증이 필요하면 로컬 포워더 사용
+    local_proxy_proc = None
+    local_proxy_server = None
+
+    if proxy_config:
+        local_port = find_free_port()
+        upstream = f"http://{proxy_config['username']}:{proxy_config['password']}@{proxy_host}:{proxy_port}"
+        local_proxy_proc = subprocess.Popen(
+            ["python", "-m", "pproxy", "-l", f"http://127.0.0.1:{local_port}", "-r", upstream],
+            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+        )
+        await asyncio.sleep(1)  # 포워더 시작 대기
+        local_proxy_server = f"http://127.0.0.1:{local_port}"
 
     async with async_playwright() as p:
         browser = await p.chromium.launch(
             headless=not headed,
+            proxy={"server": local_proxy_server} if local_proxy_server else None,
             args=[
                 "--disable-blink-features=AutomationControlled",
                 "--no-sandbox",
             ],
         )
         context = await browser.new_context(
-            proxy=proxy_config,
             viewport={"width": 1920, "height": 1080},
             locale="ko-KR",
             timezone_id="Asia/Seoul",
@@ -73,3 +97,5 @@ async def create_browser(headed: bool = False, use_proxy: bool = True):
         finally:
             await context.close()
             await browser.close()
+            if local_proxy_proc:
+                local_proxy_proc.terminate()
