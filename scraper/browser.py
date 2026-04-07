@@ -57,24 +57,10 @@ async def create_browser(headed: bool = False, use_proxy: bool = True):
             proxy_config["username"] = proxy_user
             proxy_config["password"] = f"{proxy_pass}_country-kr"
 
-    # 프록시 인증이 필요하면 로컬 포워더 사용
-    local_proxy_proc = None
-    local_proxy_server = None
-
-    if proxy_config:
-        local_port = find_free_port()
-        upstream = f"http://{proxy_config['username']}:{proxy_config['password']}@{proxy_host}:{proxy_port}"
-        local_proxy_proc = subprocess.Popen(
-            ["python", "-m", "pproxy", "-l", f"http://127.0.0.1:{local_port}", "-r", upstream],
-            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
-        )
-        await asyncio.sleep(1)  # 포워더 시작 대기
-        local_proxy_server = f"http://127.0.0.1:{local_port}"
-
     async with async_playwright() as p:
         browser = await p.chromium.launch(
             headless=not headed,
-            proxy={"server": local_proxy_server} if local_proxy_server else None,
+            proxy=proxy_config if proxy_config else None,
             args=[
                 "--disable-blink-features=AutomationControlled",
                 "--no-sandbox",
@@ -97,5 +83,3 @@ async def create_browser(headed: bool = False, use_proxy: bool = True):
         finally:
             await context.close()
             await browser.close()
-            if local_proxy_proc:
-                local_proxy_proc.terminate()
