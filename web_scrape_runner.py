@@ -50,7 +50,8 @@ async def scrape(category: str, regions: list, target: int):
     from config import DEFAULT_DELAY_MIN, DEFAULT_DELAY_MAX, LONG_PAUSE_INTERVAL, LONG_PAUSE_MIN, LONG_PAUSE_MAX
 
     results = []
-    seen = set()
+    seen = set()       # 업체명 중복 체크
+    seen_emails = set() # 이메일 중복 체크
     per_region = max(30, (target * 3) // len(regions) + 10)
 
     async with create_browser(headed=False) as (browser, context, page):
@@ -74,7 +75,8 @@ async def scrape(category: str, regions: list, target: int):
                     )
                     if biz:
                         seen.add(biz.name)
-                        if biz.email:
+                        if biz.email and biz.email not in seen_emails:
+                            seen_emails.add(biz.email)
                             results.append({
                                 'name': biz.name,
                                 'phone': biz.phone,
