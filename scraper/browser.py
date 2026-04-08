@@ -31,12 +31,13 @@ USER_AGENTS = [
 
 
 @asynccontextmanager
-async def create_browser(headed: bool = False, use_proxy: bool = True):
+async def create_browser(headed: bool = False, use_proxy: bool = False):
     """Playwright 브라우저 컨텍스트를 생성하고 관리한다.
 
     Args:
         headed: True면 브라우저 화면을 표시 (디버깅용)
-        use_proxy: True면 프록시 사용 (환경변수에서 읽음)
+        use_proxy: True면 프록시 사용 (기본값: False = 직접 연결)
+                   직접 연결로 시작하고, 차단 시에만 프록시 사용 권장
 
     Yields:
         (browser, context, page) 튜플
@@ -73,6 +74,14 @@ async def create_browser(headed: bool = False, use_proxy: bool = True):
             user_agent=random.choice(USER_AGENTS),
         )
         page = await context.new_page()
+
+        # 불필요한 리소스 차단 (트래픽 절감: 페이지당 5MB → 0.5MB)
+        await page.route("**/*.{png,jpg,jpeg,gif,svg,webp,ico,woff,woff2,ttf,eot,mp4,webm,ogg}", lambda route: route.abort())
+        await page.route("**/static/image/**", lambda route: route.abort())
+        await page.route("**/static/font/**", lambda route: route.abort())
+        await page.route("**/*.css", lambda route: route.abort())
+        await page.route("**/analytics/**", lambda route: route.abort())
+        await page.route("**/ads/**", lambda route: route.abort())
 
         # 스텔스 모드 적용 (봇 탐지 우회)
         if HAS_STEALTH:
