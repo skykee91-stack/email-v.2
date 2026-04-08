@@ -219,7 +219,7 @@ async def click_and_extract(
             frame_url = entry_frame.url
             if "/photo" in frame_url:
                 home_url = frame_url.replace("/photo", "/home").split("?")[0]
-                await entry_frame.goto(home_url, wait_until="networkidle", timeout=8000)
+                await entry_frame.goto(home_url, wait_until="domcontentloaded", timeout=8000)
                 await asyncio.sleep(1)
         except Exception:
             pass

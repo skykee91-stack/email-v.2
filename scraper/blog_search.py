@@ -67,7 +67,7 @@ async def collect_blog_post_urls(
     url = BLOG_SEARCH_URL.format(query=quote(query))
 
     logger.info(f"블로그 검색: '{query}' (최신순)")
-    await page.goto(url, wait_until="networkidle", timeout=30000)
+    await page.goto(url, wait_until="domcontentloaded", timeout=30000)
     await asyncio.sleep(3)
 
     all_posts = []
@@ -137,7 +137,7 @@ async def extract_from_blog_post(
     page = await context.new_page()
 
     try:
-        await page.goto(post_url, wait_until="networkidle", timeout=15000)
+        await page.goto(post_url, wait_until="domcontentloaded", timeout=15000)
         await asyncio.sleep(3)
 
         # mainFrame iframe에서 본문 분석
@@ -265,7 +265,7 @@ async def get_place_detail(
 
     page = await context.new_page()
     try:
-        await page.goto(url, wait_until="networkidle", timeout=15000)
+        await page.goto(url, wait_until="domcontentloaded", timeout=15000)
         await asyncio.sleep(2)
 
         detail = await page.evaluate(r"""
@@ -328,7 +328,7 @@ async def search_place_by_name(
         # map.naver.com에서 검색 (searchIframe → 첫 결과 클릭 → entryIframe)
         query = f"{region} {biz_name}".strip()
         url = f"https://map.naver.com/p/search/{quote(query)}"
-        await page.goto(url, wait_until="networkidle", timeout=20000)
+        await page.goto(url, wait_until="domcontentloaded", timeout=20000)
         await asyncio.sleep(5)
 
         # searchIframe 찾기

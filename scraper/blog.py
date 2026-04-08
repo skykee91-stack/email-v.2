@@ -200,7 +200,7 @@ async def scrape_blog(
 
     try:
         # 1단계: 블로그 메인 페이지 방문
-        await page.goto(blog_main_url, wait_until="networkidle", timeout=timeout_ms)
+        await page.goto(blog_main_url, wait_until="domcontentloaded", timeout=timeout_ms)
         await asyncio.sleep(1.5)
 
         result = await _extract_from_page_and_frames(page)
@@ -214,7 +214,7 @@ async def scrape_blog(
             profile_url = f"https://blog.naver.com/ProfileDisplay.naver?blogId={blog_id}"
 
             try:
-                await page.goto(profile_url, wait_until="networkidle", timeout=timeout_ms)
+                await page.goto(profile_url, wait_until="domcontentloaded", timeout=timeout_ms)
                 await asyncio.sleep(1)
 
                 profile_result = await _extract_from_page_and_frames(page)
@@ -228,7 +228,7 @@ async def scrape_blog(
             blog_id = blog_id_match.group(1)
             try:
                 # 블로그 메인으로 돌아가서 최근 글 링크 수집
-                await page.goto(blog_main_url, wait_until="networkidle", timeout=timeout_ms)
+                await page.goto(blog_main_url, wait_until="domcontentloaded", timeout=timeout_ms)
                 await asyncio.sleep(1)
 
                 # 모든 프레임에서 포스트 링크 수집
@@ -256,7 +256,7 @@ async def scrape_blog(
                 for post_url in list(post_urls)[:2]:
                     try:
                         logger.debug(f"  블로그 글 확인: {post_url[:80]}")
-                        await page.goto(post_url, wait_until="networkidle", timeout=timeout_ms)
+                        await page.goto(post_url, wait_until="domcontentloaded", timeout=timeout_ms)
                         await asyncio.sleep(1)
 
                         post_result = await _extract_from_page_and_frames(page)
@@ -303,7 +303,7 @@ async def scrape_homepage(
     page = await context.new_page()
 
     try:
-        await page.goto(homepage_url, wait_until="networkidle", timeout=timeout_ms)
+        await page.goto(homepage_url, wait_until="domcontentloaded", timeout=timeout_ms)
         await asyncio.sleep(1)
 
         result = await _extract_from_page_and_frames(page)
@@ -345,7 +345,7 @@ async def scrape_smartstore(
     page = await context.new_page()
 
     try:
-        await page.goto(profile_url, wait_until="networkidle", timeout=timeout_ms)
+        await page.goto(profile_url, wait_until="domcontentloaded", timeout=timeout_ms)
         await asyncio.sleep(1)
 
         text = await page.evaluate("() => document.body?.innerText || ''")
