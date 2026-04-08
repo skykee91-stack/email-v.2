@@ -43,67 +43,102 @@ for city_districts in CITY_TO_DISTRICTS.values():
     ALL_REGIONS.extend(city_districts)
 
 
+# ─── 수집 히스토리 (이전 수집 업체 중복 방지) ───
+HISTORY_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'collected_history.json')
+
+
+def load_history():
+    if os.path.exists(HISTORY_FILE):
+        try:
+            with open(HISTORY_FILE, 'r', encoding='utf-8') as f:
+                return set(json.load(f).get('collected_ids', []))
+        except Exception:
+            return set()
+    return set()
+
+
+def save_history(collected_ids):
+    try:
+        with open(HISTORY_FILE, 'w', encoding='utf-8') as f:
+            json.dump({'collected_ids': list(collected_ids)}, f, ensure_ascii=False)
+    except Exception as e:
+        logging.error(f'히스토리 저장 실패: {e}')
+
+
 async def scrape(category: str, regions: list, target: int):
     from scraper.browser import create_browser
     from scraper.search import navigate_to_search, collect_all_entries, get_search_frame
     from scraper.detail import click_and_extract
     from config import DEFAULT_DELAY_MIN, DEFAULT_DELAY_MAX, LONG_PAUSE_INTERVAL, LONG_PAUSE_MIN, LONG_PAUSE_MAX
+    from data import KEYWORD_GROUPS
 
     results = []
-    seen = set()       # 업체명 중복 체크
-    seen_emails = set() # 이메일 중복 체크
-    per_region = max(30, (target * 3) // len(regions) + 10)
+    history_ids = load_history()
+    seen_ids = set(history_ids)  # 이전 수집 히스토리 포함
+
+    # 관련 키워드 자동 로드
+    search_keywords = KEYWORD_GROUPS.get(category, [category])
+    per_region = max(30, (target * 2) // (len(regions) * len(search_keywords)) + 10)
+
+    logging.warning(f"검색 키워드: {search_keywords}, 기존 히스토리: {len(history_ids)}개")
 
     async with create_browser(headed=False) as (browser, context, page):
-        for ri, region in enumerate(regions):
+        for keyword in search_keywords:
             if len(results) >= target:
                 break
-            try:
-                sf = await navigate_to_search(page, region, category)
-                entries = await collect_all_entries(page, sf, per_region)
-                if not entries:
-                    continue
-                sf = await get_search_frame(page)
-                for idx, entry in enumerate(entries):
-                    if len(results) >= target:
-                        break
-                    if entry['name'] in seen:
+
+            for ri, region in enumerate(regions):
+                if len(results) >= target:
+                    break
+                try:
+                    sf = await navigate_to_search(page, region, keyword)
+                    entries = await collect_all_entries(page, sf, per_region)
+                    if not entries:
                         continue
-                    biz = await click_and_extract(
-                        page, sf, entry, category,
-                        context=context, search_region=region
-                    )
-                    if biz:
-                        seen.add(biz.name)
-                        if biz.email and biz.email not in seen_emails:
-                            seen_emails.add(biz.email)
-                            results.append({
-                                'name': biz.name,
-                                'phone': biz.phone,
-                                'email': biz.email,
-                                'address': biz.address,
-                                'category': category,
-                                'region': region,
-                                'naverId': biz.naver_id,
-                                'blogUrl': biz.blog_url,
-                                'homepageUrl': biz.homepage_url,
-                                'placeId': biz.place_id,
-                            })
-                            print(json.dumps({
-                                'found': len(results),
-                                'name': biz.name,
-                                'email': biz.email
-                            }, ensure_ascii=False), flush=True)
-                    await asyncio.sleep(random.uniform(DEFAULT_DELAY_MIN, DEFAULT_DELAY_MAX))
-                    if (idx + 1) % LONG_PAUSE_INTERVAL == 0:
-                        await asyncio.sleep(random.uniform(LONG_PAUSE_MIN, LONG_PAUSE_MAX))
-                    try:
-                        sf = await get_search_frame(page)
-                    except:
-                        sf = await navigate_to_search(page, region, category)
-                        sf = await get_search_frame(page)
-            except Exception as e:
-                logging.warning(f"지역 {region} 수집 오류: {e}")
+                    sf = await get_search_frame(page)
+                    for idx, entry in enumerate(entries):
+                        if len(results) >= target:
+                            break
+                        biz = await click_and_extract(
+                            page, sf, entry, category,
+                            context=context, search_region=region
+                        )
+                        if biz:
+                            # place_id 기준 중복 체크 (없으면 이름+주소)
+                            dedup_key = biz.place_id or f"{biz.name}|{biz.address or ''}"
+                            if dedup_key not in seen_ids:
+                                seen_ids.add(dedup_key)
+                                history_ids.add(dedup_key)
+                                results.append({
+                                    'name': biz.name,
+                                    'phone': biz.phone,
+                                    'email': biz.email or '',
+                                    'address': biz.address,
+                                    'category': category,
+                                    'region': region,
+                                    'naverId': biz.naver_id,
+                                    'blogUrl': biz.blog_url,
+                                    'homepageUrl': biz.homepage_url,
+                                    'placeId': biz.place_id,
+                                })
+                                print(json.dumps({
+                                    'found': len(results),
+                                    'name': biz.name,
+                                    'email': biz.email or '없음'
+                                }, ensure_ascii=False), flush=True)
+                        await asyncio.sleep(random.uniform(DEFAULT_DELAY_MIN, DEFAULT_DELAY_MAX))
+                        if (idx + 1) % LONG_PAUSE_INTERVAL == 0:
+                            await asyncio.sleep(random.uniform(LONG_PAUSE_MIN, LONG_PAUSE_MAX))
+                        try:
+                            sf = await get_search_frame(page)
+                        except:
+                            sf = await navigate_to_search(page, region, keyword)
+                            sf = await get_search_frame(page)
+                except Exception as e:
+                    logging.warning(f"지역 {region} '{keyword}' 수집 오류: {e}")
+
+    # 히스토리 저장
+    save_history(history_ids)
 
     result_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'web_scrape_result.json')
     with open(result_path, 'w', encoding='utf-8') as f:
