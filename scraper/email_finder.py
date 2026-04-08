@@ -159,7 +159,7 @@ async def extract_from_page_comprehensive(page: Page) -> list[str]:
 async def crawl_homepage_deep(
     context: BrowserContext,
     homepage_url: str,
-    timeout_ms: int = 8000,
+    timeout_ms: int = 5000,
 ) -> list[str]:
     """홈페이지 + 하위 페이지(회사소개, 연락처 등)에서 이메일 추출
 
@@ -170,7 +170,7 @@ async def crawl_homepage_deep(
 
     try:
         # 1. 메인 페이지
-        await page.goto(homepage_url, wait_until="networkidle", timeout=timeout_ms)
+        await page.goto(homepage_url, wait_until="domcontentloaded", timeout=timeout_ms)
         await asyncio.sleep(1)
         main_emails = await extract_from_page_comprehensive(page)
         all_emails.extend(main_emails)
@@ -231,7 +231,7 @@ async def crawl_homepage_deep(
         # 3. 하위 페이지 방문
         for sub_url in sub_pages[:3]:  # 최대 3개만
             try:
-                await page.goto(sub_url, wait_until="networkidle", timeout=timeout_ms)
+                await page.goto(sub_url, wait_until="domcontentloaded", timeout=timeout_ms)
                 await asyncio.sleep(1.5)
                 sub_emails = await extract_from_page_comprehensive(page)
                 all_emails.extend(sub_emails)
@@ -277,7 +277,7 @@ async def search_naver_for_email(
             try:
                 # 네이버 검색
                 url = f"https://search.naver.com/search.naver?query={quote(query)}"
-                await page.goto(url, wait_until="networkidle", timeout=timeout_ms)
+                await page.goto(url, wait_until="domcontentloaded", timeout=timeout_ms)
                 await asyncio.sleep(1)
 
                 text = await page.evaluate("() => document.body?.innerText || ''")
@@ -306,7 +306,7 @@ async def extract_instagram_email(
     """
     page = await context.new_page()
     try:
-        await page.goto(instagram_url, wait_until="networkidle", timeout=timeout_ms)
+        await page.goto(instagram_url, wait_until="domcontentloaded", timeout=timeout_ms)
         await asyncio.sleep(1.5)
 
         # 1. 페이지 텍스트에서 추출
@@ -454,7 +454,7 @@ async def find_email_enhanced(
             if "/information" not in frame_url and info_url != frame_url:
                 info_page = await context.new_page()
                 try:
-                    await info_page.goto(info_url, wait_until="networkidle", timeout=6000)
+                    await info_page.goto(info_url, wait_until="domcontentloaded", timeout=6000)
                     await asyncio.sleep(1)
                     info_text = await info_page.evaluate("() => document.body?.innerText || ''")
                     info_emails = extract_emails_from_text(info_text)
