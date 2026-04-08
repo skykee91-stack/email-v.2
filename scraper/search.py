@@ -54,8 +54,8 @@ async def navigate_to_search(page: Page, region: str, category: str) -> Frame:
     url = NAVER_MAP_URL.format(query=quote(query))
 
     logger.info(f"검색 시작: '{query}' -> {url}")
-    await page.goto(url, wait_until="domcontentloaded", timeout=PAGE_LOAD_TIMEOUT)
-    await asyncio.sleep(5)
+    await page.goto(url, wait_until="networkidle", timeout=15000)
+    await asyncio.sleep(2)
 
     # searchIframe이 로드될 때까지 재시도 (최대 3회)
     search_frame = None
