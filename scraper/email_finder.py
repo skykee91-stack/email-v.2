@@ -523,25 +523,8 @@ async def find_email_enhanced(
         except Exception:
             pass
 
-    # 4. 인스타그램 (많은 한국 소상공인이 인스타 bio에 이메일을 올림)
-    if not email and instagram_url:
-        try:
-            ig_emails = await extract_instagram_email(context, instagram_url)
-            if ig_emails:
-                email = ig_emails[0]
-                logger.info(f"  [인스타그램] 이메일 발견: {email}")
-        except Exception:
-            pass
-
-    # 5. 네이버 검색 (마지막 수단)
-    if not email:
-        try:
-            search_emails = await search_naver_for_email(context, name, region)
-            if search_emails:
-                email = search_emails[0]
-                logger.info(f"  [네이버 검색] 이메일 발견: {email}")
-        except Exception:
-            pass
+    # 4. 인스타그램 / 네이버 검색 — 비활성화 (속도 대비 효과 낮음)
+    # gmail은 홈페이지/블로그/스마트스토어에서 충분히 확보 가능
 
     # 네이버 아이디 추출 (여러 소스)
     # 1. 블로그 URL

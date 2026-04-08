@@ -360,12 +360,7 @@ async def click_and_extract(
             if id_match and id_match.group(1) not in excluded:
                 naver_id = id_match.group(1)
 
-        # 빠른 경로: 블로그ID가 있으면 바로 이메일 생성 (가장 빠름)
-        if not email and naver_id and blog_url and naver_id in blog_url:
-            email = f"{naver_id}@naver.com"
-            logger.info(f"  [블로그ID→이메일] {email}")
-
-        # 느린 경로: 블로그ID도 없고 이메일도 없으면 심층 탐색
+        # 심층 탐색: 홈페이지/블로그/인스타에서 gmail 등 실제 이메일 먼저 찾기
         if not email and context:
             try:
                 from scraper.email_finder import find_email_enhanced
@@ -387,6 +382,11 @@ async def click_and_extract(
                 blog_url = extra["blog_url"]
             if extra.get("homepage_url") and not homepage_url:
                 homepage_url = extra["homepage_url"]
+
+        # 마지막 수단: 심층 탐색으로도 못 찾으면 블로그ID로 @naver.com 생성
+        if not email and naver_id and blog_url and naver_id in blog_url:
+            email = f"{naver_id}@naver.com"
+            logger.info(f"  [블로그ID→네이버메일] {email} (다른 이메일 못 찾음)")
 
         biz = Business(
             name=name,
