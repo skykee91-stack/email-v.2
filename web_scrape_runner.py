@@ -65,7 +65,7 @@ def save_history(collected_ids):
         logging.error(f'히스토리 저장 실패: {e}')
 
 
-async def scrape(category: str, regions: list, target: int):
+async def scrape(category: str, regions: list, target: int, custom_keywords: list = None):
     from scraper.browser import create_browser
     from scraper.search import navigate_to_search, collect_all_entries, get_search_frame
     from scraper.detail import click_and_extract
@@ -76,8 +76,11 @@ async def scrape(category: str, regions: list, target: int):
     history_ids = load_history()
     seen_ids = set(history_ids)  # 이전 수집 히스토리 포함
 
-    # 관련 키워드 자동 로드
-    search_keywords = KEYWORD_GROUPS.get(category, [category])
+    # 관련 키워드: 웹에서 보낸 키워드 우선, 없으면 자동 로드
+    if custom_keywords and len(custom_keywords) > 0:
+        search_keywords = custom_keywords
+    else:
+        search_keywords = KEYWORD_GROUPS.get(category, [category])
     per_region = max(30, (target * 2) // (len(regions) * len(search_keywords)) + 10)
 
     logging.warning(f"검색 키워드: {search_keywords}, 기존 히스토리: {len(history_ids)}개")
@@ -157,17 +160,20 @@ def main():
     # 우선순위: hex 환경변수 > 환경변수 > config 파일 > 커맨드라인 인자
     env_hex = os.environ.get('SCRAPE_CONFIG_HEX', '')
     env_config = os.environ.get('SCRAPE_CONFIG', '')
+    custom_keywords = None
     if env_hex:
         config = json.loads(bytes.fromhex(env_hex).decode('utf-8'))
         category = config['category']
         target = config.get('target', 100)
         region = config.get('region', '')
+        custom_keywords = config.get('keywords', None)
     elif args.config and os.path.exists(args.config):
         with open(args.config, 'r', encoding='utf-8') as f:
             config = json.load(f)
         category = config['category']
         target = config.get('target', 100)
         region = config.get('region', '')
+        custom_keywords = config.get('keywords', None)
     else:
         category = args.category
         region = args.region
@@ -187,7 +193,10 @@ def main():
     else:
         regions = [region]
 
-    asyncio.run(scrape(category, regions, target))
+    # 빈 리스트면 None 처리 (자동 키워드 로드되게)
+    if custom_keywords and len(custom_keywords) == 0:
+        custom_keywords = None
+    asyncio.run(scrape(category, regions, target, custom_keywords))
 
 
 if __name__ == '__main__':
