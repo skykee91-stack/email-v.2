@@ -65,6 +65,15 @@ def save_history(collected_ids):
         logging.error(f'히스토리 저장 실패: {e}')
 
 
+def _save_intermediate(results, result_path):
+    """중간 저장 — 수집 중 프로세스가 죽어도 여기까지 모은 데이터 보존"""
+    try:
+        with open(result_path, 'w', encoding='utf-8') as f:
+            json.dump({'businesses': results}, f, ensure_ascii=False)
+    except Exception:
+        pass
+
+
 async def scrape(category: str, regions: list, target: int, custom_keywords: list = None):
     from scraper.browser import create_browser
     from scraper.search import navigate_to_search, collect_all_entries, get_search_frame
@@ -75,6 +84,7 @@ async def scrape(category: str, regions: list, target: int, custom_keywords: lis
     results = []
     history_ids = load_history()
     seen_ids = set(history_ids)  # 이전 수집 히스토리 포함
+    result_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'web_scrape_result.json')
 
     # 관련 키워드: 웹에서 보낸 키워드 우선, 없으면 자동 로드
     if custom_keywords and len(custom_keywords) > 0:
@@ -129,6 +139,11 @@ async def scrape(category: str, regions: list, target: int, custom_keywords: lis
                                     'name': biz.name,
                                     'email': biz.email or '없음'
                                 }, ensure_ascii=False), flush=True)
+
+                                # 10건마다 중간 저장 (중단돼도 데이터 보존)
+                                if len(results) % 10 == 0:
+                                    _save_intermediate(results, result_path)
+                                    save_history(history_ids)
                         await asyncio.sleep(random.uniform(DEFAULT_DELAY_MIN, DEFAULT_DELAY_MAX))
                         if (idx + 1) % LONG_PAUSE_INTERVAL == 0:
                             await asyncio.sleep(random.uniform(LONG_PAUSE_MIN, LONG_PAUSE_MAX))
@@ -140,10 +155,9 @@ async def scrape(category: str, regions: list, target: int, custom_keywords: lis
                 except Exception as e:
                     logging.warning(f"지역 {region} '{keyword}' 수집 오류: {e}")
 
-    # 히스토리 저장
+    # 최종 저장
     save_history(history_ids)
 
-    result_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'web_scrape_result.json')
     with open(result_path, 'w', encoding='utf-8') as f:
         json.dump({'businesses': results}, f, ensure_ascii=False)
     print(json.dumps({'done': True, 'total': len(results)}, ensure_ascii=False), flush=True)
