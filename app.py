@@ -1,6 +1,7 @@
 """N플레이스 업체 추출기 - GUI 애플리케이션 (CustomTkinter)"""
 
 import asyncio
+import json
 import logging
 import os
 import random
@@ -37,7 +38,7 @@ from config import DEFAULT_DELAY_MIN, DEFAULT_DELAY_MAX, MAX_RESULTS
 from models.business import Business
 from scraper.browser import create_browser
 from export.excel import export_to_excel
-from data import REGIONS, CATEGORIES
+from data import REGIONS, CATEGORIES, KEYWORD_GROUPS
 
 
 def ensure_browser_installed():
@@ -102,6 +103,31 @@ class QueueHandler(logging.Handler):
             pass
 
 
+# ─── 수집 히스토리 (이전 수집 업체 중복 방지) ───
+HISTORY_FILE = os.path.join(EXE_DIR, "collected_history.json")
+
+
+def load_history():
+    """이전에 수집했던 업체의 place_id/dedup_key 목록을 불러옴"""
+    if os.path.exists(HISTORY_FILE):
+        try:
+            with open(HISTORY_FILE, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                return set(data.get("collected_ids", []))
+        except Exception:
+            return set()
+    return set()
+
+
+def save_history(collected_ids):
+    """수집한 업체의 place_id/dedup_key 목록을 저장"""
+    try:
+        with open(HISTORY_FILE, "w", encoding="utf-8") as f:
+            json.dump({"collected_ids": list(collected_ids)}, f, ensure_ascii=False)
+    except Exception as e:
+        logging.error(f"히스토리 저장 실패: {e}")
+
+
 # ─── 크롤링 워커 ───
 class CrawlWorker:
     def __init__(self, log_queue, progress_queue):
@@ -110,6 +136,7 @@ class CrawlWorker:
         self.businesses = []
         self.is_running = False
         self.should_stop = False
+        self.history_ids = set()  # 이전 수집 업체 ID
 
     def _log(self, msg):
         self.log_queue.put(msg)
@@ -117,145 +144,178 @@ class CrawlWorker:
     def _progress(self, current, total, status=""):
         self.progress_queue.put((current, total, status))
 
-    def run_place_mode(self, region, category, max_results, deep_search, delay_min, delay_max):
+    def run_place_mode(self, region, category, max_results, deep_search, delay_min, delay_max, keywords=None):
         self.is_running = True
         self.should_stop = False
         self.businesses = []
-        asyncio.run(self._place_mode(region, category, max_results, deep_search, delay_min, delay_max))
+        self.history_ids = load_history()
+        asyncio.run(self._place_mode(region, category, max_results, deep_search, delay_min, delay_max, keywords))
+        save_history(self.history_ids)
         self.is_running = False
 
-    async def _place_mode(self, region, category, max_results, deep_search, delay_min, delay_max):
+    async def _place_mode(self, region, category, max_results, deep_search, delay_min, delay_max, keywords=None):
         from scraper.search import navigate_to_search, collect_all_entries, get_search_frame
         from scraper.detail import click_and_extract
         from config import LONG_PAUSE_INTERVAL, LONG_PAUSE_MIN, LONG_PAUSE_MAX
 
-        # 이메일 있는 업체를 max_results개 모을 때까지 수집
-        # 넉넉하게 3배수만큼 업체 목록을 확보
-        scan_limit = max_results * 3
+        search_keywords = keywords if keywords and len(keywords) > 0 else [category]
+        scan_per_keyword = max(50, (max_results * 3) // len(search_keywords))
+        seen_ids = set(self.history_ids)  # 이전 수집 히스토리 포함
+        collected = 0
+        history_count = len(self.history_ids)
+        if history_count > 0:
+            self._log(f"기존 수집 히스토리: {history_count}개 업체 (자동 중복 제거)")
 
         async with create_browser(headed=False) as (browser, context, page):
             try:
-                self._log(f"목표: 이메일 있는 업체 {max_results}개 수집")
-                self._progress(0, max_results, "검색 중...")
-                search_frame = await navigate_to_search(page, region, category)
-                entries = await collect_all_entries(page, search_frame, scan_limit)
-                if not entries:
-                    self._log("검색 결과가 없습니다")
-                    self._progress(0, 0, "결과 없음")
-                    return
-                self._log(f"총 {len(entries)}개 업체 발견, 이메일 추출 시작...")
-                search_frame = await get_search_frame(page)
-                collected = 0
-                for idx, entry in enumerate(entries):
+                self._log(f"목표: 업체 {max_results}개 수집")
+                self._log(f"검색 키워드: {', '.join(search_keywords)}")
+
+                for kw_idx, keyword in enumerate(search_keywords):
                     if self.should_stop or collected >= max_results:
                         break
-                    self._progress(collected, max_results, f"[{collected}/{max_results}] '{entry['name']}' 처리 중...")
-                    self._log(f"[{collected}/{max_results}] ({idx+1}번째 탐색) '{entry['name']}'")
-                    entry["_click_index"] = idx
-                    biz = await click_and_extract(
-                        page, search_frame, entry, category,
-                        context=context,
-                        search_region=region,
-                    )
-                    if biz and biz.email:
-                        self.businesses.append(biz)
-                        collected += 1
-                        self._log(f"  → 이메일 확보! ({collected}/{max_results})")
-                    elif biz:
-                        self._log(f"  → 이메일 없음, 건너뛰기")
-                    await asyncio.sleep(random.uniform(delay_min, delay_max))
-                    if (idx+1) % LONG_PAUSE_INTERVAL == 0:
-                        await asyncio.sleep(random.uniform(LONG_PAUSE_MIN, LONG_PAUSE_MAX))
-                    try:
-                        search_frame = await get_search_frame(page)
-                    except Exception:
-                        await navigate_to_search(page, region, category)
-                        search_frame = await get_search_frame(page)
-            except Exception as e:
-                self._log(f"오류: {e}")
-        self._progress(max_results, max_results, "완료")
-        self._log(f"수집 완료: {len(self.businesses)}건")
 
-    def run_multi_region_mode(self, regions, category, max_results, delay_min, delay_max):
-        """여러 지역을 순회하면서 업체를 수집 (중복 제거)"""
-        self.is_running = True
-        self.should_stop = False
-        self.businesses = []
-        asyncio.run(self._multi_region_mode(regions, category, max_results, delay_min, delay_max))
-        self.is_running = False
+                    self._log(f"\n--- 키워드 [{kw_idx+1}/{len(search_keywords)}] '{keyword}' 검색 ---")
+                    self._progress(collected, max_results, f"'{keyword}' 검색 중...")
 
-    async def _multi_region_mode(self, regions, category, max_results, delay_min, delay_max):
-        from scraper.search import navigate_to_search, collect_all_entries, get_search_frame
-        from scraper.detail import click_and_extract
-        from config import LONG_PAUSE_INTERVAL, LONG_PAUSE_MIN, LONG_PAUSE_MAX
-
-        seen_names = set()  # 중복 방지 (업체명 기준)
-        collected = 0
-        # 이메일 있는 업체만 세니까 넉넉하게 탐색
-        per_region = max(30, (max_results * 3) // len(regions) + 10)
-
-        async with create_browser(headed=False) as (browser, context, page):
-            for region_idx, region in enumerate(regions):
-                if self.should_stop or collected >= max_results:
-                    break
-
-                self._log(f"\n{'='*40}")
-                self._log(f"[지역 {region_idx+1}/{len(regions)}] {region} {category} 검색 중...")
-                self._progress(collected, max_results, f"{region} 검색 중...")
-
-                try:
-                    search_frame = await navigate_to_search(page, region, category)
-                    entries = await collect_all_entries(page, search_frame, per_region)
-
+                    search_frame = await navigate_to_search(page, region, keyword)
+                    entries = await collect_all_entries(page, search_frame, scan_per_keyword)
                     if not entries:
-                        self._log(f"  {region}: 검색 결과 없음, 다음 지역으로...")
+                        self._log(f"  '{keyword}': 검색 결과 없음")
                         continue
-
-                    self._log(f"  {region}: {len(entries)}개 업체 발견")
+                    self._log(f"  '{keyword}': {len(entries)}개 업체 발견")
                     search_frame = await get_search_frame(page)
 
                     for idx, entry in enumerate(entries):
                         if self.should_stop or collected >= max_results:
                             break
-
-                        # 중복 체크
-                        if entry["name"] in seen_names:
-                            self._log(f"  [{collected+1}] '{entry['name']}' 중복 → 건너뛰기")
-                            continue
-
-                        self._progress(collected + 1, max_results, f"[{region}] '{entry['name']}' 처리 중...")
-                        self._log(f"  [{collected+1}/{max_results}] '{entry['name']}'")
-
+                        self._progress(collected, max_results, f"[{collected}/{max_results}] '{entry['name']}' 처리 중...")
+                        self._log(f"[{collected}/{max_results}] ({idx+1}번째 탐색) '{entry['name']}'")
+                        entry["_click_index"] = idx
                         biz = await click_and_extract(
                             page, search_frame, entry, category,
                             context=context,
                             search_region=region,
                         )
-                        if biz and biz.email:
-                            seen_names.add(biz.name)
-                            self.businesses.append(biz)
-                            collected += 1
-                            self._log(f"  → 이메일 확보! ({collected}/{max_results})")
-                        elif biz:
-                            seen_names.add(biz.name)
-                            self._log(f"  → 이메일 없음, 건너뛰기")
-
+                        if biz:
+                            dedup_key = biz.place_id or f"{biz.name}|{biz.address or ''}"
+                            if dedup_key in seen_ids:
+                                self._log(f"  → 중복 업체(기존 수집됨), 건너뛰기")
+                            else:
+                                seen_ids.add(dedup_key)
+                                self.history_ids.add(dedup_key)
+                                self.businesses.append(biz)
+                                collected += 1
+                                email_status = "이메일 있음" if biz.email else "이메일 없음"
+                                self._log(f"  → 수집 완료 ({email_status}) ({collected}/{max_results})")
                         await asyncio.sleep(random.uniform(delay_min, delay_max))
                         if (idx+1) % LONG_PAUSE_INTERVAL == 0:
                             await asyncio.sleep(random.uniform(LONG_PAUSE_MIN, LONG_PAUSE_MAX))
-
                         try:
                             search_frame = await get_search_frame(page)
                         except Exception:
-                            search_frame = await navigate_to_search(page, region, category)
+                            await navigate_to_search(page, region, keyword)
                             search_frame = await get_search_frame(page)
 
-                except Exception as e:
-                    self._log(f"  {region} 오류: {e}")
-                    continue
+            except Exception as e:
+                self._log(f"오류: {e}")
+        self._progress(max_results, max_results, "완료")
+        self._log(f"수집 완료: {len(self.businesses)}건")
+
+    def run_multi_region_mode(self, regions, category, max_results, delay_min, delay_max, keywords=None):
+        """여러 지역을 순회하면서 업체를 수집 (중복 제거)"""
+        self.is_running = True
+        self.should_stop = False
+        self.businesses = []
+        self.history_ids = load_history()
+        asyncio.run(self._multi_region_mode(regions, category, max_results, delay_min, delay_max, keywords))
+        save_history(self.history_ids)
+        self.is_running = False
+
+    async def _multi_region_mode(self, regions, category, max_results, delay_min, delay_max, keywords=None):
+        from scraper.search import navigate_to_search, collect_all_entries, get_search_frame
+        from scraper.detail import click_and_extract
+        from config import LONG_PAUSE_INTERVAL, LONG_PAUSE_MIN, LONG_PAUSE_MAX
+
+        search_keywords = keywords if keywords and len(keywords) > 0 else [category]
+        seen_ids = set(self.history_ids)  # 이전 수집 히스토리 포함
+        history_count = len(self.history_ids)
+        if history_count > 0:
+            self._log(f"기존 수집 히스토리: {history_count}개 업체 (자동 중복 제거)")
+        collected = 0
+        per_region = max(30, (max_results * 2) // (len(regions) * len(search_keywords)) + 10)
+
+        self._log(f"목표: 업체 {max_results}개 수집")
+        self._log(f"검색 키워드: {', '.join(search_keywords)}")
+        self._log(f"검색 지역: {len(regions)}개 지역")
+
+        async with create_browser(headed=False) as (browser, context, page):
+            for kw_idx, keyword in enumerate(search_keywords):
+                if self.should_stop or collected >= max_results:
+                    break
+
+                self._log(f"\n{'#'*40}")
+                self._log(f"키워드 [{kw_idx+1}/{len(search_keywords)}] '{keyword}'")
+
+                for region_idx, region in enumerate(regions):
+                    if self.should_stop or collected >= max_results:
+                        break
+
+                    self._log(f"\n{'='*40}")
+                    self._log(f"[지역 {region_idx+1}/{len(regions)}] {region} '{keyword}' 검색 중...")
+                    self._progress(collected, max_results, f"'{keyword}' - {region} 검색 중...")
+
+                    try:
+                        search_frame = await navigate_to_search(page, region, keyword)
+                        entries = await collect_all_entries(page, search_frame, per_region)
+
+                        if not entries:
+                            self._log(f"  {region}: 검색 결과 없음, 다음 지역으로...")
+                            continue
+
+                        self._log(f"  {region}: {len(entries)}개 업체 발견")
+                        search_frame = await get_search_frame(page)
+
+                        for idx, entry in enumerate(entries):
+                            if self.should_stop or collected >= max_results:
+                                break
+
+                            self._progress(collected + 1, max_results, f"[{region}] '{entry['name']}' 처리 중...")
+                            self._log(f"  [{collected+1}/{max_results}] '{entry['name']}'")
+
+                            biz = await click_and_extract(
+                                page, search_frame, entry, category,
+                                context=context,
+                                search_region=region,
+                            )
+                            if biz:
+                                dedup_key = biz.place_id or f"{biz.name}|{biz.address or ''}"
+                                if dedup_key in seen_ids:
+                                    self._log(f"  → 중복 업체(기존 수집됨), 건너뛰기")
+                                else:
+                                    seen_ids.add(dedup_key)
+                                    self.history_ids.add(dedup_key)
+                                    self.businesses.append(biz)
+                                    collected += 1
+                                    email_status = "이메일 있음" if biz.email else "이메일 없음"
+                                    self._log(f"  → 수집 완료 ({email_status}) ({collected}/{max_results})")
+
+                            await asyncio.sleep(random.uniform(delay_min, delay_max))
+                            if (idx+1) % LONG_PAUSE_INTERVAL == 0:
+                                await asyncio.sleep(random.uniform(LONG_PAUSE_MIN, LONG_PAUSE_MAX))
+
+                            try:
+                                search_frame = await get_search_frame(page)
+                            except Exception:
+                                search_frame = await navigate_to_search(page, region, keyword)
+                                search_frame = await get_search_frame(page)
+
+                    except Exception as e:
+                        self._log(f"  {region} 오류: {e}")
+                        continue
 
         self._progress(max_results, max_results, "완료")
-        self._log(f"\n전체 수집 완료: {len(self.businesses)}건 (중복 제거됨)")
+        self._log(f"\n전체 수집 완료: {len(self.businesses)}건 (place_id 기준 중복 제거됨)")
 
     def run_blog_mode(self, region, category, max_results, delay_min, delay_max):
         self.is_running = True
@@ -434,16 +494,31 @@ class NaverCrawlerApp(ctk.CTk):
         )
         self.category_combo.grid(row=3, column=3, pady=6, padx=(0, 8))
 
+        # 관련 키워드
+        ctk.CTkLabel(settings_card, text="관련 키워드", font=ctk.CTkFont(size=13)).grid(
+            row=4, column=0, sticky="e", padx=(16, 8), pady=6)
+        self.keywords_var = ctk.StringVar(value="")
+        self.keywords_entry = ctk.CTkEntry(
+            settings_card, textvariable=self.keywords_var,
+            placeholder_text="쉼표로 구분 (예: 랩핑, 차량랩핑, PPF)",
+            width=500, font=ctk.CTkFont(size=13),
+        )
+        self.keywords_entry.grid(row=4, column=1, columnspan=3, pady=6, padx=(0, 8), sticky="w")
+
+        # 카테고리 변경 시 관련 키워드 자동 로드 (드롭다운 선택 + 직접 입력 모두)
+        self.category_combo.configure(command=self._on_category_change)
+        self._category_trace_id = self.category_var.trace_add("write", self._on_category_var_change)
+
         # 수집 갯수
         ctk.CTkLabel(settings_card, text="수집 갯수", font=ctk.CTkFont(size=13)).grid(
-            row=4, column=0, sticky="e", padx=(16, 8), pady=6)
+            row=5, column=0, sticky="e", padx=(16, 8), pady=6)
         self.max_var = ctk.StringVar(value="100")
         self.max_combo = ctk.CTkComboBox(
             settings_card, variable=self.max_var,
             values=["100", "300", "500", "1000"],
             width=130, font=ctk.CTkFont(size=13),
         )
-        self.max_combo.grid(row=4, column=1, pady=6, padx=(0, 8))
+        self.max_combo.grid(row=5, column=1, pady=6, padx=(0, 8))
 
         # 전국 수집 (지역 여러 개 자동 순회)
         self.multi_region_var = ctk.BooleanVar(value=False)
@@ -452,7 +527,7 @@ class NaverCrawlerApp(ctk.CTk):
             variable=self.multi_region_var, font=ctk.CTkFont(size=12),
             command=self._on_multi_region_change,
         )
-        self.multi_region_check.grid(row=4, column=2, columnspan=4, sticky="w", padx=8, pady=6)
+        self.multi_region_check.grid(row=5, column=2, columnspan=4, sticky="w", padx=8, pady=6)
 
         # 심층탐색
         self.deep_var = ctk.BooleanVar(value=False)
@@ -460,7 +535,7 @@ class NaverCrawlerApp(ctk.CTk):
             settings_card, text="심층탐색 (블로그/홈페이지에서 010/이메일 추가 탐색)",
             variable=self.deep_var, font=ctk.CTkFont(size=12),
         )
-        self.deep_check.grid(row=5, column=2, columnspan=4, sticky="w", padx=8, pady=(6, 12))
+        self.deep_check.grid(row=6, column=2, columnspan=4, sticky="w", padx=8, pady=(6, 12))
 
         # ── 버튼 바 ──
         btn_bar = ctk.CTkFrame(main, fg_color="transparent")
@@ -581,6 +656,23 @@ class NaverCrawlerApp(ctk.CTk):
         self.category_combo.configure(values=items)
         if items:
             self.category_var.set(items[0])
+            self._on_category_change(items[0])
+
+    def _on_category_change(self, category):
+        """카테고리 드롭다운 선택 시 관련 키워드 자동 로드"""
+        keywords = KEYWORD_GROUPS.get(category, [category])
+        self.keywords_var.set(", ".join(keywords))
+
+    def _on_category_var_change(self, *args):
+        """카테고리 직접 입력 시에도 관련 키워드 자동 로드"""
+        category = self.category_var.get().strip()
+        if category:
+            keywords = KEYWORD_GROUPS.get(category, [category])
+            # trace 안에서 다른 StringVar 변경 시 무한루프 방지
+            current = self.keywords_var.get()
+            new_val = ", ".join(keywords)
+            if current != new_val:
+                self.keywords_var.set(new_val)
 
     def _setup_logging(self):
         handler = QueueHandler(self.log_queue)
@@ -683,6 +775,10 @@ class NaverCrawlerApp(ctk.CTk):
         mode = self.mode_var.get()
         deep = self.deep_var.get()
 
+        # 관련 키워드 파싱 (쉼표로 구분, 빈 값 제거)
+        keywords_text = self.keywords_var.get().strip()
+        keywords = [k.strip() for k in keywords_text.split(",") if k.strip()] if keywords_text else [category]
+
         if mode == "place" and self.multi_region_var.get():
             # 전국 수집 모드: 선택한 시/도의 모든 구/군 순회
             sido = self.sido_var.get()
@@ -692,14 +788,14 @@ class NaverCrawlerApp(ctk.CTk):
             self.thread = threading.Thread(
                 target=self.worker.run_multi_region_mode,
                 args=(sub_regions, category, max_results,
-                      DEFAULT_DELAY_MIN, DEFAULT_DELAY_MAX),
+                      DEFAULT_DELAY_MIN, DEFAULT_DELAY_MAX, keywords),
                 daemon=True,
             )
         elif mode == "place":
             self.thread = threading.Thread(
                 target=self.worker.run_place_mode,
                 args=(region, category, max_results, deep,
-                      DEFAULT_DELAY_MIN, DEFAULT_DELAY_MAX),
+                      DEFAULT_DELAY_MIN, DEFAULT_DELAY_MAX, keywords),
                 daemon=True,
             )
         else:
