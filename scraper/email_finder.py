@@ -161,93 +161,16 @@ async def crawl_homepage_deep(
     homepage_url: str,
     timeout_ms: int = 5000,
 ) -> list[str]:
-    """홈페이지 + 하위 페이지(회사소개, 연락처 등)에서 이메일 추출
-
-    일반적으로 이메일은 메인이 아닌 하위 페이지에 있는 경우가 많음
-    """
-    all_emails = []
+    """홈페이지 메인 페이지에서만 이메일 추출 (속도 우선)"""
     page = await context.new_page()
-
     try:
-        # 1. 메인 페이지
         await page.goto(homepage_url, wait_until="domcontentloaded", timeout=timeout_ms)
-        await asyncio.sleep(1)
-        main_emails = await extract_from_page_comprehensive(page)
-        all_emails.extend(main_emails)
-
-        if all_emails:
-            return all_emails  # 메인에서 찾으면 바로 반환
-
-        # 2. 하위 페이지 링크 수집
-        sub_pages = await page.evaluate("""
-            (baseUrl) => {
-                const links = [];
-                const keywords = [
-                    'contact', 'about', 'company', 'info', 'inquiry',
-                    '회사소개', '연락처', '문의', '오시는', '회사정보',
-                    '상담', '견적', 'support', 'help'
-                ];
-                const seen = new Set();
-
-                document.querySelectorAll('a[href]').forEach(a => {
-                    const href = a.href;
-                    const text = (a.textContent || '').toLowerCase().trim();
-                    const hrefLower = href.toLowerCase();
-
-                    // 같은 도메인만
-                    try {
-                        const linkDomain = new URL(href).hostname;
-                        const baseDomain = new URL(baseUrl).hostname;
-                        if (linkDomain !== baseDomain) return;
-                    } catch { return; }
-
-                    // 키워드 매칭
-                    const matches = keywords.some(k =>
-                        hrefLower.includes(k) || text.includes(k)
-                    );
-
-                    if (matches && !seen.has(href) && href !== baseUrl) {
-                        seen.add(href);
-                        links.push(href);
-                    }
-                });
-
-                // 푸터 영역의 링크도 추가
-                const footer = document.querySelector('footer') || document.querySelector('[class*="footer"]');
-                if (footer) {
-                    footer.querySelectorAll('a[href]').forEach(a => {
-                        const href = a.href;
-                        if (!seen.has(href) && href.startsWith('http')) {
-                            seen.add(href);
-                            links.push(href);
-                        }
-                    });
-                }
-
-                return links.slice(0, 5);
-            }
-        """, homepage_url)
-
-        # 3. 하위 페이지 방문
-        for sub_url in sub_pages[:3]:  # 최대 3개만
-            try:
-                await page.goto(sub_url, wait_until="domcontentloaded", timeout=timeout_ms)
-                await asyncio.sleep(1.5)
-                sub_emails = await extract_from_page_comprehensive(page)
-                all_emails.extend(sub_emails)
-                if all_emails:
-                    break
-            except Exception:
-                continue
-
-    except Exception as e:
-        logger.debug(f"홈페이지 심층 크롤링 실패: {e}")
+        await asyncio.sleep(0.5)
+        return await extract_from_page_comprehensive(page)
+    except Exception:
+        return []
     finally:
         await page.close()
-
-    # 중복 제거
-    seen = set()
-    return [e for e in all_emails if e not in seen and not seen.add(e)]
 
 
 async def search_naver_for_email(
@@ -379,6 +302,11 @@ async def find_email_enhanced(
     blog_url = None
     homepage_url = None
     naver_id = None
+    _start_time = asyncio.get_event_loop().time()
+
+    def _time_left():
+        """심층 탐색 전체 시간 제한 10초"""
+        return (asyncio.get_event_loop().time() - _start_time) < 10
 
     # 모든 외부 링크 한번에 추출
     all_links = await entry_frame.evaluate(r"""
@@ -446,16 +374,16 @@ async def find_email_enhanced(
     except Exception:
         pass
 
-    # 0. 플레이스 "정보" 탭 직접 방문 (숨겨진 이메일/연락처 있을 수 있음)
-    if not email:
+    # 0. 플레이스 "정보" 탭 직접 방문
+    if not email and _time_left():
         try:
             frame_url = entry_frame.url
             info_url = re.sub(r"/home(\?|$)", r"/information\1", frame_url)
             if "/information" not in frame_url and info_url != frame_url:
                 info_page = await context.new_page()
                 try:
-                    await info_page.goto(info_url, wait_until="domcontentloaded", timeout=6000)
-                    await asyncio.sleep(1)
+                    await info_page.goto(info_url, wait_until="domcontentloaded", timeout=4000)
+                    await asyncio.sleep(0.5)
                     info_text = await info_page.evaluate("() => document.body?.innerText || ''")
                     info_emails = extract_emails_from_text(info_text)
                     if info_emails:
@@ -492,7 +420,7 @@ async def find_email_enhanced(
             logger.debug(f"정보탭 방문 실패: {e}")
 
     # 1. 스마트스토어 (신뢰도 최고 - 법적 필수 표기)
-    if smartstore_url and not email:
+    if smartstore_url and not email and _time_left():
         try:
             store_result = await scrape_smartstore(context, smartstore_url)
             if store_result["emails"]:
@@ -501,8 +429,8 @@ async def find_email_enhanced(
         except Exception:
             pass
 
-    # 2. 홈페이지 심층 크롤링
-    if homepage_url and not email:
+    # 2. 홈페이지 메인 페이지
+    if homepage_url and not email and _time_left():
         try:
             hp_emails = await crawl_homepage_deep(context, homepage_url)
             if hp_emails:
@@ -511,8 +439,8 @@ async def find_email_enhanced(
         except Exception:
             pass
 
-    # 3. 블로그 (프로필 + 최근 글)
-    if blog_url and not email:
+    # 3. 블로그 (프로필만 — 속도 우선)
+    if blog_url and not email and _time_left():
         try:
             blog_result = await scrape_blog(context, blog_url)
             if blog_result["emails"]:

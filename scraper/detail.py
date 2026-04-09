@@ -203,7 +203,7 @@ async def click_and_extract(
             logger.warning(f"'{name}' 클릭 실패")
             return Business(name=name, category=search_category)
 
-        await asyncio.sleep(1.5)
+        await asyncio.sleep(1)
 
         # 상세 iframe 대기
         entry_frame = await get_entry_frame(page)
