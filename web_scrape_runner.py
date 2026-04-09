@@ -95,14 +95,24 @@ async def scrape(category: str, regions: list, target: int, custom_keywords: lis
 
     logging.warning(f"검색 키워드: {search_keywords}, 기존 히스토리: {len(history_ids)}개")
 
+    # 조기 종료: 연속 15개 지역에서 새 업체 0개면 더 이상 찾을 게 없다고 판단
+    empty_streak = 0
+    MAX_EMPTY_STREAK = 15
+
     async with create_browser(headed=False) as (browser, context, page):
         for keyword in search_keywords:
             if len(results) >= target:
+                break
+            if empty_streak >= MAX_EMPTY_STREAK:
+                logging.warning(f"연속 {MAX_EMPTY_STREAK}개 지역에서 새 업체 0개 → 조기 종료")
                 break
 
             for ri, region in enumerate(regions):
                 if len(results) >= target:
                     break
+                if empty_streak >= MAX_EMPTY_STREAK:
+                    break
+                region_found_before = len(results)
                 try:
                     sf = await navigate_to_search(page, region, keyword)
                     entries = await collect_all_entries(page, sf, per_region)
@@ -154,6 +164,12 @@ async def scrape(category: str, regions: list, target: int, custom_keywords: lis
                             sf = await get_search_frame(page)
                 except Exception as e:
                     logging.warning(f"지역 {region} '{keyword}' 수집 오류: {e}")
+
+                # 이 지역에서 새 업체를 하나도 못 찾았으면 empty_streak 증가
+                if len(results) == region_found_before:
+                    empty_streak += 1
+                else:
+                    empty_streak = 0
 
     # 최종 저장
     save_history(history_ids)
