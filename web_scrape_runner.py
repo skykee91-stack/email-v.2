@@ -74,6 +74,43 @@ def _save_intermediate(results, result_path):
         pass
 
 
+def _emit_progress(keyword=None, region=None, business=None):
+    """현재 진행 상황을 stdout에 JSON 출력 (Node.js가 파싱해서 DB에 저장)"""
+    try:
+        print(json.dumps({
+            'progress': {
+                'keyword': keyword,
+                'region': region,
+                'business': business,
+            }
+        }, ensure_ascii=False), flush=True)
+    except Exception:
+        pass
+
+
+def _emit_skip(region, keyword, business_name, reason):
+    """스킵 로그를 stdout에 JSON 출력"""
+    try:
+        print(json.dumps({
+            'skipped': {
+                'region': region,
+                'keyword': keyword,
+                'business': business_name,
+                'reason': reason,
+            }
+        }, ensure_ascii=False), flush=True)
+    except Exception:
+        pass
+
+
+def _emit_log(message):
+    """일반 로그 메시지"""
+    try:
+        print(json.dumps({'log': message}, ensure_ascii=False), flush=True)
+    except Exception:
+        pass
+
+
 async def scrape(category: str, regions: list, target: int, custom_keywords: list = None):
     from scraper.browser import create_browser
     from scraper.search import navigate_to_search, collect_all_entries, get_search_frame
@@ -99,12 +136,18 @@ async def scrape(category: str, regions: list, target: int, custom_keywords: lis
     empty_streak = 0
     MAX_EMPTY_STREAK = 15
 
+    # 업체당 최대 처리 시간 (초). 이걸 초과하면 hang으로 판단
+    PER_BUSINESS_TIMEOUT = 60
+    # 검색 페이지 로드 최대 시간
+    PER_REGION_TIMEOUT = 30
+
     async with create_browser(headed=False) as (browser, context, page):
         for keyword in search_keywords:
             if len(results) >= target:
                 break
             if empty_streak >= MAX_EMPTY_STREAK:
                 logging.warning(f"연속 {MAX_EMPTY_STREAK}개 지역에서 새 업체 0개 → 조기 종료")
+                _emit_log(f"연속 {MAX_EMPTY_STREAK}개 지역 빈 결과 → 조기 종료")
                 break
 
             for ri, region in enumerate(regions):
@@ -113,21 +156,55 @@ async def scrape(category: str, regions: list, target: int, custom_keywords: lis
                 if empty_streak >= MAX_EMPTY_STREAK:
                     break
                 region_found_before = len(results)
+
+                # 진행 상황 출력 (실시간 추적용)
+                _emit_progress(keyword=keyword, region=region, business=None)
+
                 try:
-                    sf = await navigate_to_search(page, region, keyword)
+                    # 검색 페이지 로드 (timeout 보호)
+                    sf = await asyncio.wait_for(
+                        navigate_to_search(page, region, keyword),
+                        timeout=PER_REGION_TIMEOUT
+                    )
                     entries = await collect_all_entries(page, sf, per_region)
                     if not entries:
                         continue
                     sf = await get_search_frame(page)
+
+                    region_skipped = False
                     for idx, entry in enumerate(entries):
                         if len(results) >= target:
                             break
-                        biz = await click_and_extract(
-                            page, sf, entry, category,
-                            context=context, search_region=region
-                        )
+
+                        # 진행 상황: 현재 처리 중인 업체
+                        _emit_progress(keyword=keyword, region=region, business=entry.get('name'))
+
+                        biz = None
+                        try:
+                            # 업체당 60초 timeout
+                            biz = await asyncio.wait_for(
+                                click_and_extract(
+                                    page, sf, entry, category,
+                                    context=context, search_region=region
+                                ),
+                                timeout=PER_BUSINESS_TIMEOUT
+                            )
+                        except asyncio.TimeoutError:
+                            # 멈춤 감지 → 스킵 로그 출력 + 지역 break
+                            entry_name = entry.get('name', '?')
+                            _emit_skip(region, keyword, entry_name, 'timeout')
+                            logging.warning(f"[멈춤 감지] {region} '{keyword}' '{entry_name}' → 지역 스킵")
+                            region_skipped = True
+                            break
+                        except Exception as e:
+                            # 기타 에러 (Frame detached 등)
+                            err_type = 'frame_detached' if 'detached' in str(e).lower() else 'other'
+                            entry_name = entry.get('name', '?')
+                            _emit_skip(region, keyword, entry_name, err_type)
+                            logging.warning(f"[처리 오류] {region} '{entry_name}': {e}")
+                            continue
+
                         if biz:
-                            # place_id 기준 중복 체크 (없으면 이름+주소)
                             dedup_key = biz.place_id or f"{biz.name}|{biz.address or ''}"
                             if dedup_key not in seen_ids:
                                 seen_ids.add(dedup_key)
@@ -150,19 +227,39 @@ async def scrape(category: str, regions: list, target: int, custom_keywords: lis
                                     'email': biz.email or '없음'
                                 }, ensure_ascii=False), flush=True)
 
-                                # 10건마다 중간 저장 (중단돼도 데이터 보존)
                                 if len(results) % 10 == 0:
                                     _save_intermediate(results, result_path)
                                     save_history(history_ids)
+
                         await asyncio.sleep(random.uniform(DEFAULT_DELAY_MIN, DEFAULT_DELAY_MAX))
                         if (idx + 1) % LONG_PAUSE_INTERVAL == 0:
                             await asyncio.sleep(random.uniform(LONG_PAUSE_MIN, LONG_PAUSE_MAX))
+
                         try:
                             sf = await get_search_frame(page)
                         except:
-                            sf = await navigate_to_search(page, region, keyword)
-                            sf = await get_search_frame(page)
+                            try:
+                                await asyncio.wait_for(
+                                    navigate_to_search(page, region, keyword),
+                                    timeout=PER_REGION_TIMEOUT
+                                )
+                                sf = await get_search_frame(page)
+                            except Exception:
+                                _emit_skip(region, keyword, None, 'iframe_failed')
+                                region_skipped = True
+                                break
+
+                    if region_skipped:
+                        # 다음 지역으로
+                        pass
+
+                except asyncio.TimeoutError:
+                    # 검색 페이지 로드 자체가 timeout
+                    _emit_skip(region, keyword, None, 'region_load_timeout')
+                    logging.warning(f"[지역 로드 멈춤] {region} '{keyword}' → 스킵")
                 except Exception as e:
+                    err_type = 'iframe_failed' if 'iframe' in str(e).lower() else 'other'
+                    _emit_skip(region, keyword, None, err_type)
                     logging.warning(f"지역 {region} '{keyword}' 수집 오류: {e}")
 
                 # 이 지역에서 새 업체를 하나도 못 찾았으면 empty_streak 증가
