@@ -57,31 +57,32 @@ async def navigate_to_search(page: Page, region: str, category: str) -> Frame:
     try:
         await page.goto(url, wait_until="domcontentloaded", timeout=15000)
     except Exception:
-        # 타임아웃이어도 페이지가 로드됐을 수 있음
         pass
-    await asyncio.sleep(3)
 
-    # searchIframe이 로드될 때까지 재시도 (최대 3회)
+    # 네이버 지도 iframe은 페이지 로드 후 추가로 로드됨 → 충분히 대기
+    await asyncio.sleep(4)
+
+    # searchIframe이 로드될 때까지 재시도 (최대 5회 × 3초 = 15초)
     search_frame = None
-    for attempt in range(3):
+    for attempt in range(5):
         try:
             search_frame = await get_search_frame(page)
             break
         except RuntimeError:
-            logger.warning(f"searchIframe 로드 대기 중... ({attempt + 1}/3)")
-            await asyncio.sleep(5)
+            logger.warning(f"searchIframe 로드 대기 중... ({attempt + 1}/5)")
+            await asyncio.sleep(3)
 
     if search_frame is None:
         raise RuntimeError("searchIframe을 찾을 수 없습니다")
 
+    # 리스트 컨테이너 또는 li 요소 대기 (둘 중 하나만 있으면 OK)
     try:
         await search_frame.wait_for_selector(
-            "#_pcmap_list_scroll_container", timeout=ELEMENT_TIMEOUT
+            "#_pcmap_list_scroll_container, li", timeout=ELEMENT_TIMEOUT
         )
     except Exception:
         logger.warning("리스트 컨테이너 대기 중...")
         await asyncio.sleep(5)
-        # iframe이 바뀌었을 수 있으므로 재확인
         try:
             search_frame = await get_search_frame(page)
             await search_frame.wait_for_selector("li", timeout=ELEMENT_TIMEOUT)
