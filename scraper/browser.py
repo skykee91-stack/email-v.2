@@ -75,13 +75,9 @@ async def create_browser(headed: bool = False, use_proxy: bool = False):
         )
         page = await context.new_page()
 
-        # 불필요한 리소스 차단 (트래픽 절감)
-        # 주의: CSS는 차단하면 안 됨 (네이버 지도 iframe 로드에 필요)
-        await page.route("**/*.{png,jpg,jpeg,gif,svg,webp,ico,woff,woff2,ttf,eot,mp4,webm,ogg}", lambda route: route.abort())
-        await page.route("**/static/image/**", lambda route: route.abort())
-        await page.route("**/static/font/**", lambda route: route.abort())
-        await page.route("**/analytics/**", lambda route: route.abort())
-        await page.route("**/ads/**", lambda route: route.abort())
+        # 리소스 차단 비활성화 (iframe 로드 안정성 우선)
+        # 이전에 이미지/폰트/CSS 차단했더니 네이버 지도 iframe이 안 잡히는 문제 발생
+        # 프록시 안 쓰고 있어서 트래픽 비용 없음 → 안정성 우선
 
         # 스텔스 모드 적용 (봇 탐지 우회)
         if HAS_STEALTH:
