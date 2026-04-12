@@ -142,6 +142,9 @@ async def scrape(category: str, regions: list, target: int, custom_keywords: lis
     PER_REGION_TIMEOUT = 30
 
     async with create_browser(headed=False) as (browser, context, page):
+        # 브라우저 재시작이 필요한 경우를 위한 변수
+        need_browser_restart = False
+
         for keyword in search_keywords:
             if len(results) >= target:
                 break
@@ -156,6 +159,16 @@ async def scrape(category: str, regions: list, target: int, custom_keywords: lis
                 if empty_streak >= MAX_EMPTY_STREAK:
                     break
                 region_found_before = len(results)
+
+                # 브라우저 재시작 필요하면 새 페이지 생성
+                if need_browser_restart:
+                    try:
+                        page = await context.new_page()
+                        need_browser_restart = False
+                        _emit_log("브라우저 페이지 재생성 완료")
+                    except Exception:
+                        _emit_log("브라우저 페이지 재생성 실패 → 종료")
+                        break
 
                 # 진행 상황 출력 (실시간 추적용)
                 _emit_progress(keyword=keyword, region=region, business=None)
@@ -190,15 +203,26 @@ async def scrape(category: str, regions: list, target: int, custom_keywords: lis
                                 timeout=PER_BUSINESS_TIMEOUT
                             )
                         except asyncio.TimeoutError:
-                            # 멈춤 감지 → 스킵 로그 출력 + 지역 break
                             entry_name = entry.get('name', '?')
                             _emit_skip(region, keyword, entry_name, 'timeout')
                             logging.warning(f"[멈춤 감지] {region} '{keyword}' '{entry_name}' → 지역 스킵")
+                            # timeout 후 브라우저 상태가 꼬일 수 있음 → 페이지 재생성
+                            need_browser_restart = True
+                            try:
+                                await page.close()
+                            except Exception:
+                                pass
                             region_skipped = True
                             break
                         except Exception as e:
-                            # 기타 에러 (Frame detached 등)
-                            err_type = 'frame_detached' if 'detached' in str(e).lower() else 'other'
+                            err_str = str(e).lower()
+                            if 'closed' in err_str or 'target' in err_str:
+                                # TargetClosedError → 페이지 재생성 필요
+                                _emit_skip(region, keyword, entry.get('name', '?'), 'browser_closed')
+                                need_browser_restart = True
+                                region_skipped = True
+                                break
+                            err_type = 'frame_detached' if 'detached' in err_str else 'other'
                             entry_name = entry.get('name', '?')
                             _emit_skip(region, keyword, entry_name, err_type)
                             logging.warning(f"[처리 오류] {region} '{entry_name}': {e}")
