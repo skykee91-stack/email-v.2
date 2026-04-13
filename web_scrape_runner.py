@@ -160,14 +160,23 @@ async def scrape(category: str, regions: list, target: int, custom_keywords: lis
                     break
                 region_found_before = len(results)
 
-                # 브라우저 재시작 필요하면 새 페이지 생성
+                # 브라우저 재시작: context + page 전부 새로 생성
                 if need_browser_restart:
                     try:
+                        try:
+                            await context.close()
+                        except Exception:
+                            pass
+                        context = await browser.new_context(
+                            viewport={"width": 1920, "height": 1080},
+                            locale="ko-KR",
+                            timezone_id="Asia/Seoul",
+                        )
                         page = await context.new_page()
                         need_browser_restart = False
-                        _emit_log("브라우저 페이지 재생성 완료")
-                    except Exception:
-                        _emit_log("브라우저 페이지 재생성 실패 → 종료")
+                        _emit_log("브라우저 context+page 재생성 완료")
+                    except Exception as e:
+                        _emit_log(f"브라우저 재생성 실패: {e} → 종료")
                         break
 
                 # 진행 상황 출력 (실시간 추적용)
