@@ -197,6 +197,9 @@ async def scrape(category: str, regions: list, target: int, custom_keywords: lis
                     for idx, entry in enumerate(entries):
                         if len(results) >= target:
                             break
+                        # heartbeat: 5건마다 진행 상황을 stderr로 출력 (UI/로그에서 멈춤 여부 확인용)
+                        if idx % 5 == 0:
+                            logging.warning(f"[진행] {region} '{keyword}' {idx+1}/{len(entries)} (누적 {len(results)})")
 
                         # 진행 상황: 현재 처리 중인 업체
                         _emit_progress(keyword=keyword, region=region, business=entry.get('name'))
@@ -269,14 +272,14 @@ async def scrape(category: str, regions: list, target: int, custom_keywords: lis
                             await asyncio.sleep(random.uniform(LONG_PAUSE_MIN, LONG_PAUSE_MAX))
 
                         try:
-                            sf = await get_search_frame(page)
+                            sf = await asyncio.wait_for(get_search_frame(page), timeout=10)
                         except:
                             try:
                                 await asyncio.wait_for(
                                     navigate_to_search(page, region, keyword),
                                     timeout=PER_REGION_TIMEOUT
                                 )
-                                sf = await get_search_frame(page)
+                                sf = await asyncio.wait_for(get_search_frame(page), timeout=10)
                             except Exception:
                                 _emit_skip(region, keyword, None, 'iframe_failed')
                                 region_skipped = True
