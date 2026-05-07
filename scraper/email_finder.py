@@ -13,9 +13,27 @@
 import asyncio
 import logging
 import re
+from urllib.parse import urljoin
 from playwright.async_api import BrowserContext, Page
 
 logger = logging.getLogger(__name__)
+
+# 홈페이지 하위 페이지 후보 (이메일이 자주 노출되는 경로)
+DEEP_PATHS = ["/contact", "/about", "/company", "/inquiry"]
+
+
+async def _block_heavy_resources(route):
+    """이미지/CSS/폰트/미디어 차단 (트래픽 절감용)"""
+    if route.request.resource_type in ("image", "stylesheet", "font", "media"):
+        try:
+            await route.abort()
+        except Exception:
+            pass
+    else:
+        try:
+            await route.continue_()
+        except Exception:
+            pass
 
 EMAIL_PATTERN = re.compile(r"[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}")
 
@@ -161,16 +179,56 @@ async def crawl_homepage_deep(
     homepage_url: str,
     timeout_ms: int = 5000,
 ) -> list[str]:
-    """홈페이지 메인 페이지에서만 이메일 추출 (속도 우선)"""
+    """홈페이지 메인 + 하위 페이지(/contact 등)에서 이메일 추출.
+
+    트래픽 절감: 이미지/CSS/폰트/미디어 차단 (HTML/JS만 받음).
+    전체 합 시간 한도 6초, 한 페이지에서라도 찾으면 즉시 종료.
+    """
+    deadline = asyncio.get_event_loop().time() + 6.0
     page = await context.new_page()
+
+    # 트래픽 절감 라우터
     try:
-        await page.goto(homepage_url, wait_until="domcontentloaded", timeout=timeout_ms)
-        await asyncio.sleep(0.5)
-        return await extract_from_page_comprehensive(page)
+        await page.route("**/*", _block_heavy_resources)
     except Exception:
-        return []
+        pass
+
+    all_emails: list[str] = []
+    try:
+        # 1. 메인 페이지
+        try:
+            await page.goto(homepage_url, wait_until="domcontentloaded", timeout=timeout_ms)
+            await asyncio.sleep(0.3)
+            all_emails = await extract_from_page_comprehensive(page)
+        except Exception:
+            pass
+
+        # 메인에서 찾았으면 즉시 종료
+        if all_emails:
+            return all_emails
+
+        # 2. 하위 페이지 시도 (이메일 못 찾았을 때만)
+        for path in DEEP_PATHS:
+            if asyncio.get_event_loop().time() >= deadline:
+                break
+            try:
+                sub_url = urljoin(homepage_url, path)
+                await page.goto(sub_url, wait_until="domcontentloaded", timeout=2500)
+                await asyncio.sleep(0.2)
+                emails = await extract_from_page_comprehensive(page)
+                if emails:
+                    all_emails.extend(emails)
+                    logger.info(f"  [홈페이지 {path}] 이메일 발견: {emails[0]}")
+                    break
+            except Exception:
+                continue
     finally:
-        await page.close()
+        try:
+            await page.close()
+        except Exception:
+            pass
+
+    return all_emails
 
 
 async def search_naver_for_email(
